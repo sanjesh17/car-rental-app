@@ -1,23 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import DriverDashboardPage from "./pages/DriverDashboardPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import CarSelectionPage from "./pages/CarSelectionPage";
+import BookingConfirmationPage from "./pages/BookingConfirmationPage";
+import AuthPage from "./pages/AuthPage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" index={true} element={<LandingPage />} />
+          <Route path="/driver-dashboard" element={<DriverDashboardPage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+          <Route path="/car-selection" element={<CarSelectionPage />} />
+          <Route
+            path="/booking-confirmation"
+            element={<BookingConfirmationPage />}
+          />
+          <Route path="/auth/signup" element={<AuthPage />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
