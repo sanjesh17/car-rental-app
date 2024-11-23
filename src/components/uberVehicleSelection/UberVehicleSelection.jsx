@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Autoimage from "../../assets/Auto.jpg";
+import Sedanimage from "../../assets/Sedan.png";
+import Xuvimage from "../../assets/Xuv.avif";
 import {
   Clock,
   Users,
@@ -47,7 +50,7 @@ const UberVehicleSelection = ({
       id: 1,
       type: "UberGo",
       category: "recommended",
-      image: "/api/placeholder/84/84",
+      image: Autoimage,
       arrivalTime: "4",
       price: "349",
       description: "Affordable, compact rides",
@@ -61,7 +64,7 @@ const UberVehicleSelection = ({
       id: 2,
       type: "Premier",
       category: "premium",
-      image: "/api/placeholder/84/84",
+      image: Sedanimage,
       arrivalTime: "5",
       price: "489",
       description: "Comfortable sedans with top drivers",
@@ -72,7 +75,7 @@ const UberVehicleSelection = ({
       id: 3,
       type: "UberXL",
       category: "popular",
-      image: "/api/placeholder/84/84",
+      image: Xuvimage,
       arrivalTime: "7",
       price: "599",
       description: "SUVs and mini-vans",
