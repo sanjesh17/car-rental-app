@@ -7,6 +7,9 @@ import CarSelectionPage from "./pages/CarSelectionPage";
 import BookingConfirmationPage from "./pages/BookingConfirmationPage";
 import AuthPage from "./pages/AuthPage";
 import ScrollToTop from "./hooks/ScrollToTop";
+import RoundTripSelection from "./pages/RoundTripSelection";
+import GoodsSelectionPage from "./pages/GoodsSelectionPage";
+import GoodsBookingConfirmation from "./pages/GoodsBookingConfirmationPage";
 
 function App() {
   return (
@@ -23,6 +26,12 @@ function App() {
             element={<BookingConfirmationPage />}
           />
           <Route path="/auth/signup" element={<AuthPage />} />
+          <Route path="/goods-selection" element={<GoodsSelectionPage />} />
+          <Route path="/goods-confirm-page" element={<GoodsBookingConfirmation />} />
+          <Route
+            path="/round-trip-selection"
+            element={<RoundTripSelection />}
+          />
         </Routes>
       </BrowserRouter>
     </div>

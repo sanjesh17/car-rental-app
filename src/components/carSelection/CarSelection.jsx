@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Car, ArrowLeft, CheckCircle } from "lucide-react";
 import carImg from "../../assets/landing.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import withFadeInAnimation from "../../hooks/withFadeInAnimation";
 import "../../hooks/fadeinanimation.css";
 
@@ -32,10 +32,22 @@ const carData = [
 const CarSelection = () => {
   const [selectedCar, setSelectedCar] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleCarSelect = (car) => {
     setSelectedCar(car);
-    navigate("/booking-confirmation", { state: { selectedCar: car } });
+    navigate("/booking-confirmation", { 
+      state: { 
+        selectedCar: car,
+        pickup: location.state?.pickup,
+        drop: location.state?.drop,
+        pickupDate: location.state?.pickupDate,
+        pickupTime: location.state?.pickupTime,
+        returnDate: location.state?.returnDate,
+        returnTime: location.state?.returnTime,
+        driverMode: location.state?.driverMode
+      } 
+    });
   };
 
   return (
@@ -58,7 +70,7 @@ const CarSelection = () => {
               <img
                 src={car.image}
                 alt={car.name}
-                className="w-full h-56 object-cover"
+                className="w-full h-40 object-cover"
               />
               {selectedCar?.id === car.id && (
                 <div className="absolute top-4 right-4 text-indigo-500">
