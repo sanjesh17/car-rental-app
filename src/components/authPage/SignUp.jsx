@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import landingimage from "../../assets/landing.jpg";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
@@ -111,4 +113,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default withFadeInAnimation(SignUp);

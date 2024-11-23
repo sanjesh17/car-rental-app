@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 import {
   Users,
   Car,
@@ -249,4 +251,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withFadeInAnimation(AdminDashboard);

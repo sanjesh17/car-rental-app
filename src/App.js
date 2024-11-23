@@ -6,11 +6,13 @@ import AdminDashboardPage from "./pages/AdminDashboardPage";
 import CarSelectionPage from "./pages/CarSelectionPage";
 import BookingConfirmationPage from "./pages/BookingConfirmationPage";
 import AuthPage from "./pages/AuthPage";
+import ScrollToTop from "./hooks/ScrollToTop";
 
 function App() {
   return (
     <div>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" index={true} element={<LandingPage />} />
           <Route path="/driver-dashboard" element={<DriverDashboardPage />} />

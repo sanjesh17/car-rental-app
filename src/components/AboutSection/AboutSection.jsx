@@ -1,5 +1,7 @@
 import React from "react";
 import landing from "../../assets/landing.jpg";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 
 const AboutSection = () => {
   return (
@@ -38,4 +40,4 @@ const AboutSection = () => {
   );
 };
 
-export default AboutSection;
+export default withFadeInAnimation(AboutSection);

@@ -1,173 +1,180 @@
 import React, { useState } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/auth/signup");
+  };
 
   const navLinks = [
-    { label: "HOME", href: "/" },
+    { label: "Home", href: "/" },
     {
-      label: "BOOKING",
+      label: "Services",
       dropdown: [
-        { label: "TAXI", href: "#taxi" },
-        { label: "SELF DRIVING", href: "#self-driving" },
-        { label: "ACTING", href: "#acting" },
-        { label: "GOODS", href: "#goods" },
+        { label: "Book a Ride", href: "#taxi", icon: "🚗" },
+        { label: "Self-Drive", href: "#self-driving", icon: "🎮" },
+        { label: "Delivery", href: "#goods", icon: "📦" },
+        { label: "Business", href: "#business", icon: "💼" },
       ],
     },
-    { label: "DRIVER DASH", href: "/driver-dashboard" },
-    { label: "ADMIN DASH", href: "/admin-dashboard" },
+    { label: "Drive with us", href: "/driver-dashboard" },
+    { label: "Safety", href: "/safety" },
   ];
 
   return (
-    <nav className="relative bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4 md:space-x-10">
-          {/* Logo */}
-          <div className="flex justify-start lg:w-0 lg:flex-1">
-            <a
-              href="/"
-              className="text-2xl font-bold text-gray-800 tracking-wider hover:text-gray-600 transition-colors"
-            >
-              LOGO
-            </a>
-          </div>
+    <>
+      {/* Spacer to avoid white space overlap */}
+      <div className="h-16"></div>
 
-          {/* Mobile menu button */}
-          <div className="-mr-2 -my-2 lg:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-8">
-            {navLinks.map((link, index) => (
-              <div
-                key={index}
-                className="relative group"
-                onMouseEnter={() => link.dropdown && setActiveDropdown(index)}
-                onMouseLeave={() => setActiveDropdown(null)}
+      <nav className="fixed w-full top-0 z-50 bg-white border-b">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-0">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <a
+                href="/"
+                className="text-2xl font-bold text-black tracking-tight hover:text-gray-800"
               >
-                <a
-                  href={link.href}
-                  className="text-base font-medium text-gray-700 hover:text-gray-900 transition-colors flex items-center"
-                >
-                  {link.label}
-                  {link.dropdown && (
-                    <ChevronDown className="ml-2 h-4 w-4 group-hover:rotate-180 transition-transform" />
-                  )}
-                </a>
+                LOGO
+              </a>
+            </div>
 
-                {/* Dropdown */}
-                {link.dropdown && activeDropdown === index && (
-                  <div className="absolute z-10 mt-3 transform px-2 w-56 max-w-xs sm:px-0">
-                    <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
-                      <div className="relative grid gap-6 bg-white px-5 py-6 sm:gap-8 sm:p-8">
-                        {link.dropdown.map((dropItem) => (
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex lg:items-center lg:space-x-8">
+              {navLinks.map((link, index) => (
+                <div
+                  key={index}
+                  className="relative group"
+                  onMouseEnter={() => link.dropdown && setActiveDropdown(index)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <a
+                    href={link.href}
+                    className="text-[16px] font-medium text-gray-900 hover:text-black flex items-center py-2 px-3 rounded-full hover:bg-gray-100 transition-all"
+                  >
+                    {link.label}
+                    {link.dropdown && (
+                      <ChevronDown className="ml-1 h-4 w-4 group-hover:rotate-180 transition-transform" />
+                    )}
+                  </a>
+
+                  {/* Dropdown */}
+                  {link.dropdown && activeDropdown === index && (
+                    <div className="absolute left-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div className="py-2">
+                        {link.dropdown.map((item) => (
                           <a
-                            key={dropItem.label}
-                            href={dropItem.href}
-                            className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50 transition-colors"
+                            key={item.label}
+                            href={item.href}
+                            className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                           >
-                            <div className="ml-4">
-                              <p className="text-base font-medium text-gray-900">
-                                {dropItem.label}
-                              </p>
-                            </div>
+                            <span className="mr-3">{item.icon}</span>
+                            <span>{item.label}</span>
                           </a>
                         ))}
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
+                  )}
+                </div>
+              ))}
+            </div>
 
-          {/* Sign In/Up Button */}
-          <div className="hidden lg:flex items-center justify-end md:flex-1 lg:w-0">
-            <a
-              href="/auth/signup"
-              className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gray-800 hover:bg-gray-700 transition-all duration-200"
-            >
-              SIGN IN/UP
-            </a>
+            {/* Right Side Buttons */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <button className="text-sm font-medium text-gray-900 hover:text-black px-4 py-2 rounded-full hover:bg-gray-100 transition-all">
+                Help
+              </button>
+              <button
+                className="flex items-center space-x-2 text-sm font-medium bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-all"
+                onClick={handleClick}
+              >
+                <User className="h-4 w-4" />
+                <span>Sign in</span>
+              </button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                {isMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="absolute top-full inset-x-0 p-2 transition transform origin-top-right lg:hidden">
-          <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50">
-            <div className="pt-5 pb-6 px-5">
-              <div className="space-y-6">
-                {navLinks.map((link, index) => (
-                  <div key={index}>
-                    {link.dropdown ? (
-                      <div>
-                        <button
-                          onClick={() =>
-                            setActiveDropdown(
-                              activeDropdown === index ? null : index
-                            )
-                          }
-                          className="w-full flex items-center justify-between text-base font-medium text-gray-900 hover:text-gray-700"
-                        >
-                          {link.label}
-                          <ChevronDown
-                            className={`h-5 w-5 transform transition-transform ${
-                              activeDropdown === index ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                        {activeDropdown === index && (
-                          <div className="mt-3 space-y-1">
-                            {link.dropdown.map((dropItem) => (
-                              <a
-                                key={dropItem.label}
-                                href={dropItem.href}
-                                className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                              >
-                                {dropItem.label}
-                              </a>
-                            ))}
-                          </div>
-                        )}
+        <div className="lg:hidden fixed inset-0 top-16 bg-white z-50">
+          <div className="px-4 py-2 space-y-1">
+            {navLinks.map((link, index) => (
+              <div key={index} className="py-2">
+                {link.dropdown ? (
+                  <div>
+                    <button
+                      onClick={() =>
+                        setActiveDropdown(
+                          activeDropdown === index ? null : index
+                        )
+                      }
+                      className="w-full flex items-center justify-between py-2 text-base font-medium text-gray-900"
+                    >
+                      {link.label}
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform ${
+                          activeDropdown === index ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {activeDropdown === index && (
+                      <div className="mt-2 space-y-2">
+                        {link.dropdown.map((item) => (
+                          <a
+                            key={item.label}
+                            href={item.href}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                          >
+                            <span className="mr-3">{item.icon}</span>
+                            {item.label}
+                          </a>
+                        ))}
                       </div>
-                    ) : (
-                      <a
-                        href={link.href}
-                        className="block text-base font-medium text-gray-900 hover:text-gray-700"
-                      >
-                        {link.label}
-                      </a>
                     )}
                   </div>
-                ))}
+                ) : (
+                  <a
+                    href={link.href}
+                    className="block py-2 text-base font-medium text-gray-900"
+                  >
+                    {link.label}
+                  </a>
+                )}
               </div>
-              <div className="mt-6">
-                <a
-                  href="#"
-                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  SIGN IN/UP
-                </a>
-              </div>
+            ))}
+            <div className="pt-4">
+              <button
+                className="w-full text-center py-3 px-4 rounded-full bg-black text-white font-medium hover:bg-gray-800 transition-all"
+                onClick={handleClick}
+              >
+                Sign in
+              </button>
             </div>
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 };
 

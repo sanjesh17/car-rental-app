@@ -1,5 +1,7 @@
 import React from "react";
 import car from "../../assets/car.webp";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 
 const OrderSection = () => {
   return (
@@ -26,4 +28,4 @@ const OrderSection = () => {
   );
 };
 
-export default OrderSection;
+export default withFadeInAnimation(OrderSection);

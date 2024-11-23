@@ -1,59 +1,41 @@
 import React, { useState } from "react";
 import { Car, ArrowLeft, CheckCircle } from "lucide-react";
 import carImg from "../../assets/landing.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 
 const carData = [
   {
     id: 1,
     name: "Toyota Innova",
-    image: "/path/to/innova.jpg",
+    image: carImg,
     type: "Diesel | 7 seater",
     price: 3000.0,
   },
   {
     id: 2,
     name: "Honda City",
-    image: "/path/to/honda-city.jpg",
+    image: carImg,
     type: "Petrol | 5 seater",
     price: 2500.0,
   },
   {
     id: 3,
     name: "Maruti Swift",
-    image: { carImg },
+    image: carImg,
     type: "Petrol | 5 seater",
     price: 2000.0,
   },
-  {
-    id: 4,
-    name: "Maruti Swift",
-    image: { carImg },
-    type: "Petrol | 5 seater",
-    price: 2000.0,
-  },
-  {
-    id: 5,
-    name: "Maruti Swift",
-    image: { carImg },
-    type: "Petrol | 5 seater",
-    price: 2000.0,
-  },
-  {
-    id: 6,
-    name: "Maruti Swift",
-    image: { carImg },
-    type: "Petrol | 5 seater",
-    price: 2000.0,
-  },
-  // Add more cars as needed
 ];
 
 const CarSelection = () => {
   const [selectedCar, setSelectedCar] = useState(null);
+  const navigate = useNavigate();
 
   const handleCarSelect = (car) => {
     setSelectedCar(car);
+    navigate("/booking-confirmation", { state: { selectedCar: car } });
   };
 
   return (
@@ -68,16 +50,13 @@ const CarSelection = () => {
         {carData.map((car) => (
           <div
             key={car.id}
-            className={`
-              bg-white rounded-xl shadow-lg overflow-hidden 
-              transform transition-all duration-300 
-              hover:scale-[1.03] hover:cursor-pointer hover:shadow-2xl
-              ${selectedCar?.id === car.id ? "ring-4 ring-indigo-500" : ""}
-            `}
+            className={`bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.03] hover:cursor-pointer hover:shadow-2xl ${
+              selectedCar?.id === car.id ? "ring-4 ring-indigo-500" : ""
+            }`}
           >
             <div className="relative">
               <img
-                src={carImg}
+                src={car.image}
                 alt={car.name}
                 className="w-full h-56 object-cover"
               />
@@ -102,15 +81,11 @@ const CarSelection = () => {
               </div>
               <button
                 onClick={() => handleCarSelect(car)}
-                className={`
-                  w-full p-3 rounded-lg transition-all duration-300 
-                  ${
-                    selectedCar?.id === car.id
-                      ? "bg-indigo-500 text-white"
-                      : "bg-gray-100 text-gray-800 hover:bg-indigo-100"
-                  }
-                  focus:outline-none focus:ring-2 focus:ring-indigo-400
-                `}
+                className={`w-full p-3 rounded-lg transition-all duration-300 ${
+                  selectedCar?.id === car.id
+                    ? "bg-indigo-500 text-white"
+                    : "bg-gray-100 text-gray-800 hover:bg-indigo-100"
+                } focus:outline-none focus:ring-2 focus:ring-indigo-400`}
               >
                 {selectedCar?.id === car.id ? "Selected" : "Select"}
               </button>
@@ -118,20 +93,9 @@ const CarSelection = () => {
           </div>
         ))}
       </div>
-
       <div className="mt-8 flex justify-center lg:justify-end">
         <Link to="/">
-          <button
-            className="
-            flex items-center 
-            bg-gray-800 text-white 
-            px-6 py-3 
-            rounded-lg 
-            hover:bg-gray-700 
-            transition-colors 
-            duration-300
-          "
-          >
+          <button className="flex items-center bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors duration-300">
             <ArrowLeft className="mr-2" size={20} />
             Back to Search
           </button>
@@ -141,4 +105,4 @@ const CarSelection = () => {
   );
 };
 
-export default CarSelection;
+export default withFadeInAnimation(CarSelection);

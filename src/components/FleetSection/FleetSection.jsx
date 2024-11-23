@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import speedo from "../../assets/speedo.jpg";
 import { Link } from "react-router-dom";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 
 const FleetSection = () => {
   const carDetails = [
@@ -59,4 +61,4 @@ const FleetSection = () => {
   );
 };
 
-export default FleetSection;
+export default withFadeInAnimation(FleetSection);

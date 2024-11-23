@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import withFadeInAnimation from "../../hooks/withFadeInAnimation";
+import "../../hooks/fadeinanimation.css";
 import {
   Activity,
   Clock,
@@ -225,4 +227,4 @@ const DriverDashboard = () => {
   );
 };
 
-export default DriverDashboard;
+export default withFadeInAnimation(DriverDashboard);
