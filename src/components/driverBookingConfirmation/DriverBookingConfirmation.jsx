@@ -5,12 +5,14 @@ import {
   MapPin,
   Calendar,
   Clock,
-  Package,
   Smartphone,
   Banknote,
   CheckCircle,
+  User,
+  Phone,
+  Mail,
+  MapPin as Location,
   Car,
-  User
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import withFadeInAnimation from "../../hooks/withFadeInAnimation";
@@ -27,20 +29,28 @@ const paymentMethods = [
     id: 2,
     name: "Cash on Delivery",
     icon: <Banknote size={28} />,
-    description: "Pay when your car arrives",
-  }
+    description: "Pay when your driver arrives",
+  },
 ];
 
-const BookingConfirmation = () => {
+const DriverBookingConfirmation = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { pickup, drop, pickupDate, pickupTime, returnDate, returnTime, selectedCar } = location.state || {};
+  const {
+    pickup,
+    drop,
+    pickupDate,
+    pickupTime,
+    returnDate,
+    returnTime,
+    selectedDriver,
+  } = location.state || {};
 
   const renderTitle = () => (
     <h1 className="text-4xl font-extrabold mb-4 text-gray-800 flex items-center">
-      <Car className="mr-4 text-indigo-600" size={40} />
-      Car Rental Confirmation
+      <User className="mr-4 text-indigo-600" size={40} />
+      Driver Booking Confirmation
     </h1>
   );
 
@@ -81,22 +91,51 @@ const BookingConfirmation = () => {
     </div>
   );
 
-  const renderCarDetails = () => (
+  const renderDriverDetails = () => (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4 text-gray-800 flex items-center">
-          <Car className="mr-3 text-indigo-600" size={28} />
-          Car Details
+          <User className="mr-3 text-indigo-600" size={28} />
+          Driver Details
         </h2>
         <div className="flex gap-96">
-          <div>
-            <h3 className="text-xl font-bold text-gray-800">{selectedCar.name}</h3>
-            <p className="text-gray-600 mt-2">{selectedCar.type}</p>
+          <div className="space-y-3">
+            <h3 className="text-xl font-bold text-gray-800">
+              {selectedDriver.name}
+            </h3>
+            <p className="text-gray-600 flex items-center">
+              <Phone className="mr-2" size={18} />
+              {selectedDriver.phone}
+            </p>
+            <p className="text-gray-600 flex items-center">
+              <Mail className="mr-2" size={18} />
+              {selectedDriver.email}
+            </p>
+            <p className="text-gray-600 flex items-center">
+              <Location className="mr-2" size={18} />
+              {selectedDriver.preferredArea}
+            </p>
+            <p className="text-gray-600">
+              Experience: {selectedDriver.experience} years
+            </p>
+            <div className="mt-4">
+              <h4 className="font-semibold text-gray-700 mb-2">
+                Vehicle Information
+              </h4>
+              <p className="text-gray-600">
+                {selectedDriver.vehicleInfo.make}{" "}
+                {selectedDriver.vehicleInfo.model} (
+                {selectedDriver.vehicleInfo.year})
+              </p>
+              <p className="text-gray-600">
+                Fuel Type: {selectedDriver.vehicleInfo.fuelType}
+              </p>
+            </div>
           </div>
           <div>
-            <img 
-              src={selectedCar.image} 
-              alt={selectedCar.name}
+            <img
+              src={selectedDriver.image}
+              alt={selectedDriver.name}
               className="w-40 h-40 object-cover rounded-lg"
             />
           </div>
@@ -114,15 +153,13 @@ const BookingConfirmation = () => {
         </h2>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-gray-700">Car Rental Charges</span>
-            <span className="text-lg font-semibold">₹{selectedCar.price.toFixed(2)}</span>
+            <span className="text-gray-700">Driver Service Charges</span>
+            <span className="text-lg font-semibold">₹1000.00</span>
           </div>
           <hr className="my-3" />
           <div className="flex justify-between items-center">
             <span className="text-gray-700 font-semibold">Total Amount</span>
-            <span className="text-2xl font-bold text-indigo-600">
-              ₹{selectedCar.price.toFixed(2)}
-            </span>
+            <span className="text-2xl font-bold text-indigo-600">₹1000.00</span>
           </div>
         </div>
       </div>
@@ -137,7 +174,7 @@ const BookingConfirmation = () => {
           <hr />
           <br />
           {renderBookingDetails()}
-          {renderCarDetails()}
+          {renderDriverDetails()}
           {renderPaymentSummary()}
 
           {/* Payment Methods */}
@@ -153,22 +190,32 @@ const BookingConfirmation = () => {
                     key={method.id}
                     onClick={() => setSelectedPayment(method)}
                     className={`relative p-6 rounded-xl border-2 transition-all duration-300 cursor-pointer transform hover:scale-[1.02]
-                      ${selectedPayment?.id === method.id 
-                        ? 'border-indigo-500 bg-indigo-50' 
-                        : 'border-gray-200 hover:border-indigo-200 hover:bg-gray-50'}`}
+                      ${
+                        selectedPayment?.id === method.id
+                          ? "border-indigo-500 bg-indigo-50"
+                          : "border-gray-200 hover:border-indigo-200 hover:bg-gray-50"
+                      }`}
                   >
                     <div className="flex items-start justify-between">
-                      <div className={`p-2 rounded-lg ${
-                        selectedPayment?.id === method.id ? 'text-indigo-600' : 'text-gray-600'
-                      }`}>
+                      <div
+                        className={`p-2 rounded-lg ${
+                          selectedPayment?.id === method.id
+                            ? "text-indigo-600"
+                            : "text-gray-600"
+                        }`}
+                      >
                         {method.icon}
                       </div>
                       {selectedPayment?.id === method.id && (
                         <CheckCircle className="text-indigo-500" size={24} />
                       )}
                     </div>
-                    <h3 className="mt-4 font-semibold text-gray-900">{method.name}</h3>
-                    <p className="mt-1 text-sm text-gray-500">{method.description}</p>
+                    <h3 className="mt-4 font-semibold text-gray-900">
+                      {method.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {method.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -190,15 +237,15 @@ const BookingConfirmation = () => {
                   alert("Please select a payment method");
                   return;
                 }
-                console.log("Booking confirmed", { 
-                  ...location.state, 
-                  paymentMethod: selectedPayment 
+                console.log("Driver Booking confirmed", {
+                  ...location.state,
+                  paymentMethod: selectedPayment,
                 });
               }}
               className={`flex-1 flex items-center justify-center py-3 rounded-lg transition-colors ${
-                selectedPayment 
-                  ? 'bg-green-600 text-white hover:bg-green-700' 
-                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                selectedPayment
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
               }`}
             >
               Confirm Booking
@@ -211,4 +258,4 @@ const BookingConfirmation = () => {
   );
 };
 
-export default withFadeInAnimation(BookingConfirmation);
+export default withFadeInAnimation(DriverBookingConfirmation);

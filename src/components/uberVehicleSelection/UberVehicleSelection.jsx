@@ -12,6 +12,7 @@ import {
   Star,
   Loader2,
 } from "lucide-react";
+import LoadingScreen from '../loadingScreen/LoadingScreen';
 
 const UberVehicleSelection = ({
   pickup,
@@ -24,6 +25,10 @@ const UberVehicleSelection = ({
   const [showAllOptions, setShowAllOptions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [ws, setWs] = useState(null);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [waitingForDriver, setWaitingForDriver] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
 
   // Add useEffect to handle scroll locking
   useEffect(() => {
@@ -34,6 +39,49 @@ const UberVehicleSelection = ({
       document.body.classList.remove("overflow-hidden");
       if (!document.querySelector(".modal-open")) {
         document.body.style.overflow = originalStyle;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("Connecting to WebSocket...");
+    const websocket = new WebSocket('ws://localhost:5000');
+    
+    websocket.onopen = () => {
+      console.log('WebSocket Connected');
+      setWsConnected(true);
+      
+      websocket.send(JSON.stringify({
+        type: 'register',
+        role: 'user',
+        userId: 'user-123'
+      }));
+    };
+
+    websocket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received message:', data);
+        
+        if (data.type === 'driver_accepted') {
+          console.log('Driver accepted:', data.driver);
+          setSelectedDriver(data.driver);
+          setWaitingForDriver(false);
+        }
+      } catch (error) {
+        console.error('Error processing message:', error);
+      }
+    };
+
+    websocket.onerror = (error) => {
+      console.error('WebSocket Error:', error);
+    };
+
+    setWs(websocket);
+
+    return () => {
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.close();
       }
     };
   }, []);
@@ -99,16 +147,25 @@ const UberVehicleSelection = ({
     setSelectedVehicle(vehicle);
   };
 
-  const handleConfirmRide = async () => {
+  const handleConfirmRide = () => {
+    if (!selectedVehicle || !wsConnected) return;
+    
     try {
-      setIsSearching(true);
-      // Simulate API call to book ride
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      onVehicleSelect(selectedVehicle);
-      // Redirect would happen via the parent component's handling of onVehicleSelect
+      setWaitingForDriver(true);
+      ws.send(JSON.stringify({
+        type: 'ride_request',
+        pickup,
+        drop,
+        selectedTime,
+        vehicle: selectedVehicle,
+        userId: 'user-123', // Replace with actual user ID
+        estimatedPrice: selectedVehicle.price,
+        requestId: Date.now().toString()
+      }));
     } catch (error) {
-      console.error("Error booking ride:", error);
-      setIsSearching(false);
+      console.error('Error sending ride request:', error);
+      setWaitingForDriver(false);
+      alert('Failed to send ride request. Please try again.');
     }
   };
 
@@ -292,7 +349,18 @@ const UberVehicleSelection = ({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {!waitingForDriver && (
+        <div className="fixed inset-0 bg-white z-40">
+          {createPortal(modalContent, document.body)}
+        </div>
+      )}
+
+      {/* Loading Screen */}
+      {waitingForDriver && <LoadingScreen />}
+    </>
+  );
 };
 
 export default UberVehicleSelection;

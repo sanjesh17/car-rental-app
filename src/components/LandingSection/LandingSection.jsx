@@ -6,7 +6,6 @@ import withFadeInAnimation from "../../hooks/withFadeInAnimation";
 import "../../hooks/fadeinanimation.css";
 import UberVehicleSelection from "../uberVehicleSelection/UberVehicleSelection";
 import { useNavigate } from "react-router-dom";
-import { hr } from "framer-motion/client";
 
 const LandingSection = () => {
   const [activeTrip, setActiveTrip] = useState("quickTrip");
@@ -255,7 +254,6 @@ const LandingSection = () => {
                     }`}
                     onClick={() => setDriverMode("withDriver")}
                   >
-                    <i className="fas fa-user-tie mr-2"></i>
                     With Driver
                   </button>
                   <button
@@ -266,7 +264,6 @@ const LandingSection = () => {
                     }`}
                     onClick={() => setDriverMode("selfDrive")}
                   >
-                    <i className="fas fa-car mr-2"></i>
                     Self Drive
                   </button>
                 </div>
@@ -470,34 +467,54 @@ const LandingSection = () => {
             pickup,
             drop,
             pickupDate: pickupDateInput.value,
-            pickupTime: pickupTimeInput.value
-          }
+            pickupTime: pickupTimeInput.value,
+          },
         });
       } else if (activeTrip === "roundTrip") {
-        // Existing roundTrip logic
         const pickupDateInput = document.querySelector('input[type="date"]');
         const pickupTimeInput = document.querySelector('input[type="time"]');
         const returnDateInput = document.querySelectorAll('input[type="date"]')[1];
         const returnTimeInput = document.querySelectorAll('input[type="time"]')[1];
 
-        if (!pickupDateInput?.value || !pickupTimeInput?.value || 
-            !returnDateInput?.value || !returnTimeInput?.value) {
+        if (
+          !pickupDateInput?.value ||
+          !pickupTimeInput?.value ||
+          !returnDateInput?.value ||
+          !returnTimeInput?.value
+        ) {
           alert("Please fill in all date and time fields");
           return;
         }
 
-        navigate("/car-selection", {
-          state: {
-            pickup,
-            drop,
-            pickupDate: pickupDateInput.value,
-            pickupTime: pickupTimeInput.value,
-            returnDate: returnDateInput.value,
-            returnTime: returnTimeInput.value,
-            driverMode,
-            tripType: "roundTrip"
-          }
-        });
+        // If driver mode is withDriver, go to driver selection first
+        if (driverMode === "withDriver") {
+          navigate("/driver-selection", {
+            state: {
+              pickup,
+              drop,
+              pickupDate: pickupDateInput.value,
+              pickupTime: pickupTimeInput.value,
+              returnDate: returnDateInput.value,
+              returnTime: returnTimeInput.value,
+              driverMode: true,
+              tripType: "roundTrip"
+            },
+          });
+        } else {
+          // If self-drive, go directly to car selection
+          navigate("/car-selection", {
+            state: {
+              pickup,
+              drop,
+              pickupDate: pickupDateInput.value,
+              pickupTime: pickupTimeInput.value,
+              returnDate: returnDateInput.value,
+              returnTime: returnTimeInput.value,
+              driverMode: false,
+              tripType: "roundTrip"
+            },
+          });
+        }
       } else {
         setShowVehicleSelection(true);
       }
