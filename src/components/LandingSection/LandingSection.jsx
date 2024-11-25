@@ -39,7 +39,7 @@ const LandingSection = () => {
           {
             params: {
               input: query,
-              api_key: "fUHdCgO0g7UX9lFvVjKKWwj3ULX66MWdbPYlQx8s",
+              api_key: process.env.REACT_APP_OLA_MAPS_API_KEY,
             },
             headers: {
               "X-Request-Id": crypto.randomUUID(),
