@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import landingimage from "../../assets/landing.jpg";
 import Navigation from "../Navigation/Navigation";
 import axios from "axios";
@@ -6,6 +6,7 @@ import withFadeInAnimation from "../../hooks/withFadeInAnimation";
 import "../../hooks/fadeinanimation.css";
 import UberVehicleSelection from "../uberVehicleSelection/UberVehicleSelection";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash/debounce";
 
 const LandingSection = () => {
   const [activeTrip, setActiveTrip] = useState("quickTrip");
@@ -19,17 +20,65 @@ const LandingSection = () => {
   const [driverMode, setDriverMode] = useState("withDriver");
   const navigate = useNavigate();
 
-  const handleLocationSearch = async (query, setter) => {
-    if (query.length < 3) return; // Only search for queries with 3+ characters
-    try {
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/search?q=${query}&format=json`
-      );
-      setter(response.data || []);
-    } catch (error) {
-      console.error("Error fetching location data:", error);
-    }
-  };
+  const debouncedLocationSearch = useCallback(
+    debounce(async (query, setter) => {
+      if (query.length < 3) return;
+
+      try {
+        const response = await axios.get(
+          `https://api.olamaps.io/places/v1/autocomplete`,
+          {
+            params: {
+              input: query,
+              api_key: "fUHdCgO0g7UX9lFvVjKKWwj3ULX66MWdbPYlQx8s",
+            },
+            headers: {
+              "X-Request-Id": crypto.randomUUID(),
+            },
+          }
+        );
+
+        if (response.data.status === "ok") {
+          setter(response.data.predictions || []);
+        } else {
+          setter([]);
+        }
+      } catch (error) {
+        console.error("Error fetching location data:", error);
+        setter([]);
+      }
+    }, 300),
+    []
+  );
+
+  // Update the suggestion rendering to match the API response format
+  const renderLocationSuggestions = (
+    suggestions,
+    setValue,
+    clearSuggestions
+  ) => (
+    <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto z-50">
+      {suggestions.map((place) => (
+        <li
+          key={place.place_id}
+          className="p-2 hover:bg-gray-200 cursor-pointer"
+          onClick={() => {
+            setValue(place.description);
+            clearSuggestions([]);
+          }}
+        >
+          <div className="font-medium">
+            {place.structured_formatting?.main_text}
+          </div>
+          {place.structured_formatting?.secondary_text && (
+            <div className="text-sm text-gray-600">
+              {place.structured_formatting.secondary_text}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
 
   // Generate time slots for scheduling
   const generateTimeSlots = () => {
@@ -67,25 +116,14 @@ const LandingSection = () => {
                 value={pickup}
                 onChange={(e) => {
                   setPickup(e.target.value);
-                  handleLocationSearch(e.target.value, setPickupSuggestions);
+                  debouncedLocationSearch(e.target.value, setPickupSuggestions);
                 }}
                 className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
               />
-              {pickupSuggestions.length > 0 && (
-                <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                  {pickupSuggestions.map((place) => (
-                    <li
-                      key={place.place_id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setPickup(place.display_name);
-                        setPickupSuggestions([]);
-                      }}
-                    >
-                      {place.display_name}
-                    </li>
-                  ))}
-                </ul>
+              {renderLocationSuggestions(
+                pickupSuggestions,
+                setPickup,
+                setPickupSuggestions
               )}
             </div>
 
@@ -98,25 +136,14 @@ const LandingSection = () => {
                 value={drop}
                 onChange={(e) => {
                   setDrop(e.target.value);
-                  handleLocationSearch(e.target.value, setDropSuggestions);
+                  debouncedLocationSearch(e.target.value, setDropSuggestions);
                 }}
                 className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
               />
-              {dropSuggestions.length > 0 && (
-                <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                  {dropSuggestions.map((place) => (
-                    <li
-                      key={place.place_id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setDrop(place.display_name);
-                        setDropSuggestions([]);
-                      }}
-                    >
-                      {place.display_name}
-                    </li>
-                  ))}
-                </ul>
+              {renderLocationSuggestions(
+                dropSuggestions,
+                setDrop,
+                setDropSuggestions
               )}
             </div>
 
@@ -157,25 +184,17 @@ const LandingSection = () => {
                   value={pickup}
                   onChange={(e) => {
                     setPickup(e.target.value);
-                    handleLocationSearch(e.target.value, setPickupSuggestions);
+                    debouncedLocationSearch(
+                      e.target.value,
+                      setPickupSuggestions
+                    );
                   }}
                   className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
                 />
-                {pickupSuggestions.length > 0 && (
-                  <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                    {pickupSuggestions.map((place) => (
-                      <li
-                        key={place.place_id}
-                        className="p-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => {
-                          setPickup(place.display_name);
-                          setPickupSuggestions([]);
-                        }}
-                      >
-                        {place.display_name}
-                      </li>
-                    ))}
-                  </ul>
+                {renderLocationSuggestions(
+                  pickupSuggestions,
+                  setPickup,
+                  setPickupSuggestions
                 )}
               </div>
 
@@ -187,25 +206,14 @@ const LandingSection = () => {
                   value={drop}
                   onChange={(e) => {
                     setDrop(e.target.value);
-                    handleLocationSearch(e.target.value, setDropSuggestions);
+                    debouncedLocationSearch(e.target.value, setDropSuggestions);
                   }}
                   className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
                 />
-                {dropSuggestions.length > 0 && (
-                  <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                    {dropSuggestions.map((place) => (
-                      <li
-                        key={place.place_id}
-                        className="p-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => {
-                          setDrop(place.display_name);
-                          setDropSuggestions([]);
-                        }}
-                      >
-                        {place.display_name}
-                      </li>
-                    ))}
-                  </ul>
+                {renderLocationSuggestions(
+                  dropSuggestions,
+                  setDrop,
+                  setDropSuggestions
                 )}
               </div>
 
@@ -292,25 +300,14 @@ const LandingSection = () => {
                 value={pickup}
                 onChange={(e) => {
                   setPickup(e.target.value);
-                  handleLocationSearch(e.target.value, setPickupSuggestions);
+                  debouncedLocationSearch(e.target.value, setPickupSuggestions);
                 }}
                 className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
               />
-              {pickupSuggestions.length > 0 && (
-                <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                  {pickupSuggestions.map((place) => (
-                    <li
-                      key={place.place_id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setPickup(place.display_name);
-                        setPickupSuggestions([]);
-                      }}
-                    >
-                      {place.display_name}
-                    </li>
-                  ))}
-                </ul>
+              {renderLocationSuggestions(
+                pickupSuggestions,
+                setPickup,
+                setPickupSuggestions
               )}
             </div>
 
@@ -323,25 +320,14 @@ const LandingSection = () => {
                 value={drop}
                 onChange={(e) => {
                   setDrop(e.target.value);
-                  handleLocationSearch(e.target.value, setDropSuggestions);
+                  debouncedLocationSearch(e.target.value, setDropSuggestions);
                 }}
                 className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
               />
-              {dropSuggestions.length > 0 && (
-                <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                  {dropSuggestions.map((place) => (
-                    <li
-                      key={place.place_id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setDrop(place.display_name);
-                        setDropSuggestions([]);
-                      }}
-                    >
-                      {place.display_name}
-                    </li>
-                  ))}
-                </ul>
+              {renderLocationSuggestions(
+                dropSuggestions,
+                setDrop,
+                setDropSuggestions
               )}
             </div>
             <div>
@@ -374,25 +360,14 @@ const LandingSection = () => {
                 value={pickup}
                 onChange={(e) => {
                   setPickup(e.target.value);
-                  handleLocationSearch(e.target.value, setPickupSuggestions);
+                  debouncedLocationSearch(e.target.value, setPickupSuggestions);
                 }}
                 className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
               />
-              {pickupSuggestions.length > 0 && (
-                <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                  {pickupSuggestions.map((place) => (
-                    <li
-                      key={place.place_id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setPickup(place.display_name);
-                        setPickupSuggestions([]);
-                      }}
-                    >
-                      {place.display_name}
-                    </li>
-                  ))}
-                </ul>
+              {renderLocationSuggestions(
+                pickupSuggestions,
+                setPickup,
+                setPickupSuggestions
               )}
             </div>
 
@@ -405,25 +380,14 @@ const LandingSection = () => {
                 value={drop}
                 onChange={(e) => {
                   setDrop(e.target.value);
-                  handleLocationSearch(e.target.value, setDropSuggestions);
+                  debouncedLocationSearch(e.target.value, setDropSuggestions);
                 }}
                 className="border-solid border-2 border-gray-900 h-10 py-5 px-3 w-full"
               />
-              {dropSuggestions.length > 0 && (
-                <ul className="absolute bg-white border mt-2 w-full max-h-40 overflow-y-auto">
-                  {dropSuggestions.map((place) => (
-                    <li
-                      key={place.place_id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setDrop(place.display_name);
-                        setDropSuggestions([]);
-                      }}
-                    >
-                      {place.display_name}
-                    </li>
-                  ))}
-                </ul>
+              {renderLocationSuggestions(
+                dropSuggestions,
+                setDrop,
+                setDropSuggestions
               )}
             </div>
             <div>
@@ -473,8 +437,10 @@ const LandingSection = () => {
       } else if (activeTrip === "roundTrip") {
         const pickupDateInput = document.querySelector('input[type="date"]');
         const pickupTimeInput = document.querySelector('input[type="time"]');
-        const returnDateInput = document.querySelectorAll('input[type="date"]')[1];
-        const returnTimeInput = document.querySelectorAll('input[type="time"]')[1];
+        const returnDateInput =
+          document.querySelectorAll('input[type="date"]')[1];
+        const returnTimeInput =
+          document.querySelectorAll('input[type="time"]')[1];
 
         if (
           !pickupDateInput?.value ||
@@ -497,7 +463,7 @@ const LandingSection = () => {
               returnDate: returnDateInput.value,
               returnTime: returnTimeInput.value,
               driverMode: true,
-              tripType: "roundTrip"
+              tripType: "roundTrip",
             },
           });
         } else {
@@ -511,7 +477,7 @@ const LandingSection = () => {
               returnDate: returnDateInput.value,
               returnTime: returnTimeInput.value,
               driverMode: false,
-              tripType: "roundTrip"
+              tripType: "roundTrip",
             },
           });
         }
