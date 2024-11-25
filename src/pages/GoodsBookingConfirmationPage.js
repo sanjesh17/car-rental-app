@@ -4,15 +4,13 @@ import FooterSection from "../components/FooterSection/FooterSection";
 import AuthModel from "../components/AuthModel/AuthModel";
 import GoodsBookingConfirmation from "../components/goodsBookingConfirmation/GoodsBookingConfirmation";
 
-const BookingConfirmationPage = () => {
+const GoodsBookingConfirmationPage = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
       <GoodsBookingConfirmation />
-      <FooterSection />
-      <AuthModel />
     </div>
   );
 };
 
-export default GoodsBookingConfirmation;
+export default GoodsBookingConfirmationPage;

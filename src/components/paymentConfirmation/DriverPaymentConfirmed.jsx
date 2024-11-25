@@ -1,0 +1,193 @@
+import React, { useEffect, useState } from "react";
+import {
+  Check,
+  Calendar,
+  Clock,
+  MapPin,
+  Phone,
+  User,
+  Download,
+  Share2,
+  ChevronRight,
+} from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+const DriverPaymentConfirmed = () => {
+  const [showConfetti, setShowConfetti] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const {
+    pickup,
+    drop,
+    pickupDate,
+    pickupTime,
+    returnDate,
+    returnTime,
+    selectedDriver,
+    paymentMethod,
+  } = location.state || {};
+
+  const bookingId =
+    "DRV" + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 3000);
+  }, []);
+
+  const SuccessHeader = () => (
+    <div className="text-center mb-8">
+      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Check className="w-8 h-8 text-green-600" />
+      </div>
+      <h1 className="text-2xl font-bold text-gray-800 mb-2">
+        Payment Successful!
+      </h1>
+      <p className="text-gray-600">Your driver has been booked successfully</p>
+      <div className="mt-4 text-sm font-medium text-gray-600">
+        Booking ID: {bookingId}
+      </div>
+    </div>
+  );
+
+  const DriverCard = () => (
+    <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <User className="w-6 h-6 text-indigo-600" />
+          <div>
+            <h3 className="font-semibold">{selectedDriver.name}</h3>
+            <p className="text-sm text-gray-600">
+              {selectedDriver.vehicleInfo.make}{" "}
+              {selectedDriver.vehicleInfo.model}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-start space-x-3">
+          <MapPin className="w-5 h-5 text-gray-400 mt-1" />
+          <div>
+            <div className="text-sm font-medium">Pickup</div>
+            <div className="text-sm text-gray-600">{pickup}</div>
+            <div className="flex items-center mt-1 text-xs text-gray-500">
+              <Calendar className="w-4 h-4 mr-1" />
+              {pickupDate}
+              <Clock className="w-4 h-4 ml-3 mr-1" />
+              {pickupTime}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-start space-x-3">
+          <MapPin className="w-5 h-5 text-gray-400 mt-1" />
+          <div>
+            <div className="text-sm font-medium">Drop-off</div>
+            <div className="text-sm text-gray-600">{drop}</div>
+            <div className="flex items-center mt-1 text-xs text-gray-500">
+              <Calendar className="w-4 h-4 mr-1" />
+              {returnDate}
+              <Clock className="w-4 h-4 ml-3 mr-1" />
+              {returnTime}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-start space-x-3">
+          <Phone className="w-5 h-5 text-gray-400 mt-1" />
+          <div>
+            <div className="text-sm font-medium">Driver Contact</div>
+            <div className="text-sm text-gray-600">{selectedDriver.phone}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ActionButtons = () => (
+    <div className="space-y-3">
+      <button className="w-full flex items-center justify-center space-x-2 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700">
+        <Download className="w-5 h-5" />
+        <span>Download Invoice</span>
+      </button>
+
+      <button className="w-full flex items-center justify-center space-x-2 border border-gray-300 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
+        <Share2 className="w-5 h-5" />
+        <span>Share Booking Details</span>
+      </button>
+    </div>
+  );
+
+  const NextSteps = () => (
+    <div className="bg-gray-50 rounded-2xl p-6">
+      <h3 className="font-semibold mb-4">What's Next?</h3>
+      <div className="space-y-4">
+        <div className="flex items-start space-x-3">
+          <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm text-green-600">1</span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">
+              You will receive a confirmation email with booking details
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start space-x-3">
+          <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm text-green-600">2</span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">
+              Our team will contact you before pickup time
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start space-x-3">
+          <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm text-green-600">3</span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">
+              Keep your ID proof ready for verification during pickup
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-md mx-auto px-4">
+        {showConfetti && (
+          <div className="fixed inset-0 pointer-events-none">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-4 h-4 bg-yellow-500 rounded-full animate-ping" />
+              <div className="w-4 h-4 bg-indigo-500 rounded-full animate-ping delay-100" />
+              <div className="w-4 h-4 bg-green-500 rounded-full animate-ping delay-200" />
+            </div>
+          </div>
+        )}
+
+        <SuccessHeader />
+        <DriverCard />
+        <ActionButtons />
+        <div className="my-6">
+          <NextSteps />
+        </div>
+
+        <button
+          onClick={() => navigate("/bookings")}
+          className="w-full mt-6 flex items-center justify-center space-x-2 text-indigo-600 py-3 rounded-xl hover:bg-indigo-50"
+        >
+          <span>View All Bookings</span>
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default DriverPaymentConfirmed;

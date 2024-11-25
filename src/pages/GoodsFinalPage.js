@@ -1,15 +1,16 @@
 import React from "react";
 import Navigation from "../components/Navigation/Navigation";
-import RoundSelection from "../components/roundTripSelection/RoundTripSelection";
+import GoodsPaymentConfirmed from "../components/paymentConfirmation/GoodsPaymentConfirmed";
 import FooterSection from "../components/FooterSection/FooterSection";
 
-const RoundTripSelection = () => {
+const GoodsFinalPage = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <RoundSelection />
+      <GoodsPaymentConfirmed />
+      <FooterSection />
     </div>
   );
 };
 
-export default RoundTripSelection;
+export default GoodsFinalPage;

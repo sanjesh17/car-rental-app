@@ -9,26 +9,18 @@ const Navigation = () => {
 
   const navLinks = [
     { label: "Home", href: "/" },
-    {
-      label: "Services",
-      dropdown: [
-        { label: "Book a Ride", href: "#taxi", icon: "🚗", desc: "On-demand rides" },
-        { label: "Self-Drive", href: "#self-driving", icon: "🎮", desc: "Rent & drive" },
-        { label: "Delivery", href: "#goods", icon: "📦", desc: "Package delivery" },
-        { label: "Business", href: "#business", icon: "💼", desc: "Corporate solutions" },
-      ],
-    },
     { label: "Drive with us", href: "/driver-dashboard" },
+    { label: "Contact Us", href: "/safety" },
     { label: "Safety", href: "/safety" },
   ];
 
   return (
     <>
-      <div className="h-20"></div>
+      <div className="h-16"></div>
 
       <nav className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
               <a
@@ -57,17 +49,17 @@ const Navigation = () => {
                   >
                     {link.label}
                     {link.dropdown && (
-                      <ChevronDown 
-                        className="ml-1 h-4 w-4 group-hover:rotate-180 transition-transform duration-300" 
-                      />
+                      <ChevronDown className="ml-1 h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
                     )}
                   </a>
 
                   {/* Dropdown with animation */}
                   {link.dropdown && activeDropdown === index && (
-                    <div className="absolute left-0 mt-2 w-72 rounded-2xl bg-white shadow-xl 
+                    <div
+                      className="absolute left-0 mt-2 w-72 rounded-2xl bg-white shadow-xl 
                                   border border-gray-100 overflow-hidden opacity-0 translate-y-2 
-                                  animate-[dropdownEnter_0.2s_ease-out_forwards]">
+                                  animate-[dropdownEnter_0.2s_ease-out_forwards]"
+                    >
                       <div className="py-2">
                         {link.dropdown.map((item) => (
                           <a
@@ -75,17 +67,23 @@ const Navigation = () => {
                             href={item.href}
                             className="group flex items-center px-4 py-3 hover:bg-gray-50"
                           >
-                            <span className="flex items-center justify-center w-10 h-10 
+                            <span
+                              className="flex items-center justify-center w-10 h-10 
                                          rounded-xl bg-blue-50 group-hover:bg-blue-100 
-                                         transition-colors duration-200">
+                                         transition-colors duration-200"
+                            >
                               {item.icon}
                             </span>
                             <div className="ml-3">
-                              <p className="text-sm font-medium text-gray-800 group-hover:text-blue-600 
-                                          transition-colors duration-200">
+                              <p
+                                className="text-sm font-medium text-gray-800 group-hover:text-blue-600 
+                                          transition-colors duration-200"
+                              >
                                 {item.label}
                               </p>
-                              <p className="text-xs text-gray-500">{item.desc}</p>
+                              <p className="text-xs text-gray-500">
+                                {item.desc}
+                              </p>
                             </div>
                           </a>
                         ))}
@@ -98,9 +96,11 @@ const Navigation = () => {
 
             {/* Right Side Buttons */}
             <div className="hidden lg:flex items-center space-x-2">
-              <button className="text-sm font-medium text-gray-600 hover:text-blue-600 px-4 py-2.5 
+              <button
+                className="text-sm font-medium text-gray-600 hover:text-blue-600 px-4 py-2.5 
                                rounded-xl hover:bg-blue-50/80 transition-all duration-200 
-                               flex items-center gap-2">
+                               flex items-center gap-2"
+              >
                 <HelpCircle className="h-4 w-4" />
                 Help
               </button>
@@ -135,7 +135,7 @@ const Navigation = () => {
 
       {/* Mobile Menu with slide animation */}
       {isMenuOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 top-20 bg-white z-50 
                      animate-[slideDown_0.3s_ease-out_forwards]"
         >
@@ -145,19 +145,29 @@ const Navigation = () => {
                 {link.dropdown ? (
                   <div>
                     <button
-                      onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                      onClick={() =>
+                        setActiveDropdown(
+                          activeDropdown === index ? null : index
+                        )
+                      }
                       className="w-full flex items-center justify-between py-2 text-base 
                                font-medium text-gray-800 hover:text-blue-600"
                     >
                       {link.label}
                       <ChevronDown
                         className={`h-5 w-5 transition-transform duration-300 
-                                  ${activeDropdown === index ? "rotate-180" : ""}`}
+                                  ${
+                                    activeDropdown === index ? "rotate-180" : ""
+                                  }`}
                       />
                     </button>
                     <div
                       className={`mt-2 space-y-2 pl-4 overflow-hidden transition-all duration-300
-                                ${activeDropdown === index ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
+                                ${
+                                  activeDropdown === index
+                                    ? "max-h-96 opacity-100"
+                                    : "max-h-0 opacity-0"
+                                }`}
                     >
                       {link.dropdown.map((item) => (
                         <a
@@ -165,10 +175,16 @@ const Navigation = () => {
                           href={item.href}
                           className="flex items-center px-4 py-3 rounded-xl hover:bg-blue-50"
                         >
-                          <span className="flex items-center justify-center w-10 h-10 
-                                       rounded-xl bg-blue-50">{item.icon}</span>
+                          <span
+                            className="flex items-center justify-center w-10 h-10 
+                                       rounded-xl bg-blue-50"
+                          >
+                            {item.icon}
+                          </span>
                           <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-800">{item.label}</p>
+                            <p className="text-sm font-medium text-gray-800">
+                              {item.label}
+                            </p>
                             <p className="text-xs text-gray-500">{item.desc}</p>
                           </div>
                         </a>

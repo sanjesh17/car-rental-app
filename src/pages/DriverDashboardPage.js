@@ -9,8 +9,6 @@ const DriverDashboardPage = () => {
     <div className="min-h-screen">
       <Navigation />
       <DriverDashboard />
-      <FooterSection />
-      <AuthModel />
     </div>
   );
 };

@@ -9,7 +9,6 @@ const GoodsSelectionPage = () => {
     <div className="min-h-screen">
       <Navigation />
       <GoodsSelection />
-      <FooterSection />
     </div>
   );
 };

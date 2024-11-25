@@ -8,7 +8,6 @@ const DriverSelectionPage = () => {
     <div className="min-h-screen">
       <Navigation />
       <DriverSelection />
-      <FooterSection />
     </div>
   );
 };

@@ -10,7 +10,6 @@ const CarSelectionPage = () => {
       <Navigation />
       <CarSelection />
       <FooterSection />
-      <AuthModel />
     </div>
   );
 };

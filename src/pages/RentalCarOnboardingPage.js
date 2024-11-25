@@ -8,7 +8,6 @@ const RentalCarOnboardingPage = () => {
     <div className="min-h-screen">
       <Navigation />
       <RentalCarOnboarding />
-      <FooterSection />
     </div>
   );
 };

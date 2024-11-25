@@ -188,7 +188,7 @@ const LandingSection = () => {
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <input
                       type="date"
-                      className="w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
+                      className="w-[170px] md:w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
                                focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -196,7 +196,7 @@ const LandingSection = () => {
                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <input
                       type="time"
-                      className="w-[120px] md:w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
+                      className="w-[145px] md:w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
                                focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -213,7 +213,7 @@ const LandingSection = () => {
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                       <input
                         type="date"
-                        className="w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
+                        className="w-[170px] md:w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
                                  focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -221,7 +221,7 @@ const LandingSection = () => {
                       <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                       <input
                         type="time"
-                        className="w-[120px] md:w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
+                        className="w-[145px] md:w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 
                                  focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>

@@ -9,8 +9,6 @@ const BookingConfirmationPage = () => {
     <div className="min-h-screen">
       <Navigation />
       <BookingConfirmation />
-      <FooterSection />
-      <AuthModel />
     </div>
   );
 };

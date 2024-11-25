@@ -1,116 +1,149 @@
 import React, { useState } from "react";
-import landingimage from "../../assets/landing.jpg";
-import withFadeInAnimation from "../../hooks/withFadeInAnimation";
-import "../../hooks/fadeinanimation.css";
+import {
+  Smartphone,
+  Shield,
+  ArrowRight,
+  Truck,
+  Package,
+  MapPin,
+  Coffee,
+  Rocket,
+} from "lucide-react";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1); // 1 for phone input, 2 for OTP verification
+  const [step, setStep] = useState(1);
 
+  // 🕺 Dance with validation! Make sure phone number is legit
   const handlePhoneSubmit = (e) => {
     e.preventDefault();
     if (phone.trim() === "" || phone.length < 10) {
-      alert("Please enter a valid phone number");
+      alert("Oops! Looks like your phone number is playing hide and seek 🙈");
       return;
     }
-    setStep(2); // Proceed to OTP step
+    setStep(2);
   };
 
+  // 🎉 OTP party! Let's verify this code
   const handleOtpSubmit = (e) => {
     e.preventDefault();
     if (otp.trim() === "" || otp.length !== 6) {
-      alert("Please enter a valid 6-digit OTP");
+      alert("6 digits of magic needed! Come on, you can do it! 🔮");
       return;
     }
-    alert("Sign-Up Successful!");
+    alert("🚀 Welcome aboard! Let the adventure begin!");
   };
 
   return (
-    <div
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center px-4"
-      style={{ backgroundImage: `url(${landingimage})` }}
-    >
-      <div className="w-full max-w-sm bg-white p-8 rounded-lg shadow-lg scale-[1.2] mt-[-120px]">
-        <h1 className="text-2xl font-bold mb-6 text-center ">
-          {step === 1 ? "Sign Up" : "Verify OTP"}
-        </h1>
+    <div className="h-max py-40 md:min-h-screen relative bg-gradient-to-br from-indigo-50 to-white flex flex-col justify-center  overflow-hidden">
+      {/* 🎨 Magical background with dancing icons */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full">
+          {/* Playful floating icons */}
+          <div className="absolute animate-bounce top-10 left-10">
+            <Truck className="w-24 h-24 text-indigo-300" />
+          </div>
+          <div className="absolute animate-ping bottom-10 right-10">
+            <Package className="w-24 h-24 text-indigo-300" />
+          </div>
+          <div className="absolute animate-spin top-1/3 left-1/4">
+            <MapPin className="w-24 h-24 text-indigo-300" />
+          </div>
+          <div className="absolute animate-pulse bottom-1/4 right-1/3">
+            <Coffee className="w-24 h-24 text-indigo-300" />
+          </div>
+          <div className="absolute animate-bounce top-1/2 right-1/4">
+            <Rocket className="w-24 h-24 text-indigo-300" />
+          </div>
+        </div>
+      </div>
 
-        {step === 1 ? (
-          <form onSubmit={handlePhoneSubmit}>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Enter your phone number
-            </label>
-            <div className="relative mb-6">
-              <span className="absolute left-3 top-[9px] text-gray-900">
-                +91
-              </span>
-              <input
-                type="tel"
-                id="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="123 456 7890"
-                className="w-full pl-12 pr-4 py-2 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                maxLength="10"
-              />
+      <div className="max-w-sm md:max-w-md mx-auto w-full relative z-10">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 border border-indigo-100">
+          <div className="text-center">
+            <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 hover:rotate-45 transition-transform duration-300">
+              <Smartphone className="w-10 h-10 text-indigo-600" />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition duration-300"
-            >
-              Send OTP
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleOtpSubmit}>
-            <label
-              htmlFor="otp"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Enter the OTP
-            </label>
-            <input
-              type="text"
-              id="otp"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="6-digit OTP"
-              className="w-full border rounded-lg py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent mb-6"
-              maxLength="6"
-            />
-            <button
-              type="submit"
-              className="w-full bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition duration-300"
-            >
-              Verify & Sign Up
-            </button>
-          </form>
-        )}
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              {step === 1 ? "Get Started" : "Enter OTP"}
+            </h1>
+            <p className="text-gray-600">
+              {step === 1
+                ? ""
+                : "Verify OTP"}
+            </p>
+          </div>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
-          By continuing, you agree to our{" "}
-          <a
-            href="#"
-            className="text-gray-900 font-medium underline hover:no-underline"
-          >
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a
-            href="#"
-            className="text-gray-900 font-medium underline hover:no-underline"
-          >
-            Privacy Policy
-          </a>
-          .
-        </p>
+          {step === 1 ? (
+            <form onSubmit={handlePhoneSubmit} className="space-y-4">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 group-focus-within:text-indigo-600 transition">
+                    +91
+                  </span>
+                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Enter Your Number"
+                  maxLength="10"
+                  className="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center"
+              >
+                Send OTP
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleOtpSubmit} className="space-y-4">
+              <div className="flex space-x-2 justify-center">
+                {[...Array(6)].map((_, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength="1"
+                    value={otp[index] || ""}
+                    onChange={(e) => {
+                      const newOtp = otp.split("");
+                      newOtp[index] = e.target.value;
+                      setOtp(newOtp.join(""));
+                    }}
+                    className="w-12 h-14 text-center border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 hover:border-indigo-300 transition"
+                  />
+                ))}
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center"
+              >
+                Submit
+                <Shield className="ml-2 w-5 h-5" />
+              </button>
+              <p className="text-center text-sm text-gray-500">
+                Not Your Number?
+                <button className="text-indigo-600 ml-1 font-medium hover:underline">
+                  Resend OTP
+                </button>
+              </p>
+            </form>
+          )}
+
+          <div className="text-center text-xs text-gray-500 mt-4">
+            By continuing, you're joining our
+            <button className="text-indigo-600 ml-1 font-medium hover:underline">
+              User Club
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default withFadeInAnimation(SignUp);
+export default SignUp;

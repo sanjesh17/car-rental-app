@@ -15,6 +15,10 @@ import GoodsBookingConfirmationPage from "./pages/GoodsBookingConfirmationPage";
 import RoleSelection from "./components/roleSelection/RoleSelection";
 import DriverSelectionPage from "./pages/DriverSelectionPage";
 import DriverConfirmationPage from "./pages/DriverConfirmationPage";
+import BookingFinalPage from "./pages/BookingFinalPage";
+import DriverFinalPage from "./pages/DriverFinalPage";
+import GoodsFinalPage from "./pages/GoodsFinalPage";
+
 function App() {
   return (
     <div>
@@ -39,7 +43,7 @@ function App() {
           <Route path="/auth/signup" element={<AuthPage />} />
           <Route path="/goods-selection" element={<GoodsSelectionPage />} />
           <Route
-            path="/goods-confirm-page"
+            path="/goods-booking-confirmation"
             element={<GoodsBookingConfirmationPage />}
           />
           <Route
@@ -49,6 +53,12 @@ function App() {
           <Route path="/get-started" element={<RoleSelection />} />
           <Route path="/new/driver" element={<DriverRegistrationPage />} />
           <Route path="/new/car" element={<RentalCarOnboardingPage />} />
+          <Route path="/payment-confirmed" element={<BookingFinalPage />} />
+          <Route path="/goods/payment-confirmed" element={<GoodsFinalPage />} />
+          <Route
+            path="/driver/payment-confirmed"
+            element={<DriverFinalPage />}
+          />
         </Routes>
       </BrowserRouter>
     </div>

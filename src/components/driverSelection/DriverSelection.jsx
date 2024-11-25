@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { User, ArrowLeft, CheckCircle } from "lucide-react";
+import {
+  User,
+  ArrowLeft,
+  CheckCircle,
+  MapPin,
+  Calendar,
+  Car,
+} from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import withFadeInAnimation from "../../hooks/withFadeInAnimation";
-import "../../hooks/fadeinanimation.css";
 
 const DriverSelection = () => {
   const [selectedDriver, setSelectedDriver] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetchDrivers();
@@ -25,11 +29,10 @@ const DriverSelection = () => {
       if (data.success) {
         setDrivers(data.data);
       } else {
-        setError("Failed to fetch drivers");
+        setError("Unable to load drivers at this time");
       }
     } catch (error) {
-      setError("Error fetching drivers");
-      console.error("Error:", error);
+      setError("Connection error. Please try again");
     } finally {
       setLoading(false);
     }
@@ -61,92 +64,131 @@ const DriverSelection = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <div className="w-16 h-16 relative">
+          <div className="absolute w-full h-full border-4 border-indigo-200 rounded-full animate-pulse" />
+          <div className="absolute w-full h-full border-t-4 border-indigo-600 rounded-full animate-spin" />
+        </div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-center text-red-600 p-4">{error}</div>;
+    return (
+      <div className="p-4 max-w-md mx-auto mt-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-8 lg:px-28 mt-12 mb-12">
-      <h1 className="text-4xl font-extrabold mb-4 text-gray-800 flex items-center">
-        <User className="mr-4 text-indigo-600" size={40} />
-        Select Your Driver
-      </h1>
-      <hr />
-      <br />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-        {drivers.map((driver) => (
-          <div
-            key={driver._id}
-            className={`bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.03] hover:cursor-pointer hover:shadow-2xl ${
-              selectedDriver?._id === driver._id ? "ring-4 ring-indigo-500" : ""
-            }`}
-          >
-            <div className="relative">
-              <img
-                src={`http://localhost:5000${driver.profileImage}`}
-                alt={`${driver.personalInfo.firstName} ${driver.personalInfo.lastName}`}
-                className="w-full h-40 object-cover"
-              />
-              {selectedDriver?._id === driver._id && (
-                <div className="absolute top-4 right-4 text-indigo-500">
-                  <CheckCircle size={32} className="drop-shadow-md" />
-                </div>
-              )}
-            </div>
-            <div className="p-5">
-              <h2 className="font-bold text-2xl mb-2 text-gray-800">
-                {driver.personalInfo.firstName} {driver.personalInfo.lastName}
-              </h2>
-              <p className="text-gray-600 mb-2">
-                Experience: {driver.driverInfo.experience} years
-              </p>
-              <p className="text-gray-600 mb-2">
-                Area: {driver.driverInfo.preferredArea}
-              </p>
-              <p className="text-gray-600 mb-3">
-                Vehicle: {driver.vehicleInfo.vehicleMake}{" "}
-                {driver.vehicleInfo.vehicleModel}
-              </p>
-              <button
-                onClick={() => handleDriverSelect(driver)}
-                className={`w-full p-3 rounded-lg transition-all duration-300 ${
-                  selectedDriver?._id === driver._id
-                    ? "bg-indigo-500 text-white"
-                    : "bg-gray-100 text-gray-800 hover:bg-indigo-100"
-                } focus:outline-none focus:ring-2 focus:ring-indigo-400`}
+    <div className="min-h-screen bg-gray-50 pb-8">
+      {/* Header */}
+      <div className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Link
+                to="/car-selection"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                {selectedDriver?._id === driver._id ? "Selected" : "Select"}
-              </button>
+                <ArrowLeft className="w-6 h-6 text-gray-600" />
+              </Link>
+              <h1 className="text-xl font-semibold text-gray-800">
+                Select Driver
+              </h1>
             </div>
+            <span className="text-sm text-gray-500">
+              {drivers.length} available
+            </span>
           </div>
-        ))}
+        </div>
       </div>
 
-      {drivers.length === 0 && (
-        <div className="text-center py-12">
-          <User className="mx-auto text-gray-400 mb-4" size={48} />
-          <h3 className="text-xl font-medium text-gray-600">
-            No drivers available at the moment
-          </h3>
-        </div>
-      )}
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 mt-6">
+        {drivers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {drivers.map((driver) => (
+              <div
+                key={driver._id}
+                className={`bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg ${
+                  selectedDriver?._id === driver._id
+                    ? "ring-2 ring-indigo-600"
+                    : "hover:ring-1 hover:ring-gray-200"
+                }`}
+              >
+                <div className="relative">
+                  <img
+                    src={`http://localhost:5000${driver.profileImage}`}
+                    alt={`${driver.personalInfo.firstName} ${driver.personalInfo.lastName}`}
+                    className="w-full h-48 object-cover"
+                  />
+                  {selectedDriver?._id === driver._id && (
+                    <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                      <CheckCircle className="w-6 h-6 text-indigo-600" />
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4">
+                    <h2 className="text-lg font-semibold text-white">
+                      {driver.personalInfo.firstName}{" "}
+                      {driver.personalInfo.lastName}
+                    </h2>
+                  </div>
+                </div>
 
-      <div className="mt-8 flex justify-center lg:justify-end">
-        <Link to="/car-selection">
-          <button className="flex items-center bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors duration-300">
-            <ArrowLeft className="mr-2" size={20} />
-            Back to Car Selection
-          </button>
-        </Link>
+                <div className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>
+                        {driver.driverInfo.experience} years experience
+                      </span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>{driver.driverInfo.preferredArea}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Car className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>
+                        {driver.vehicleInfo.vehicleMake}
+                        {driver.vehicleInfo.vehicleModel}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleDriverSelect(driver)}
+                    className={`w-full mt-4 px-4 py-3 rounded-lg font-medium transition-all duration-200 
+                      ${
+                        selectedDriver?._id === driver._id
+                          ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-900"
+                      }`}
+                  >
+                    {selectedDriver?._id === driver._id
+                      ? "Selected"
+                      : "Choose Driver"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <User className="mx-auto text-gray-400 mb-3" size={48} />
+            <h3 className="text-lg font-medium text-gray-900">
+              No Available Drivers
+            </h3>
+            <p className="mt-2 text-sm text-gray-500">Please try again later</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default withFadeInAnimation(DriverSelection);
+export default DriverSelection;

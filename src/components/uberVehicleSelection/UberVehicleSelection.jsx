@@ -187,7 +187,11 @@ const UberVehicleSelection = ({
       className={`fixed inset-0 z-50 overflow-hidden modal-open transition-opacity duration-300`}
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
-      <div className={`relative flex flex-col h-full justify-end transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform translate-y-full'}`}>
+      <div
+        className={`relative flex flex-col h-full justify-end transition-transform duration-300 ${
+          isVisible ? "transform translate-y-0" : "transform translate-y-full"
+        }`}
+      >
         <div className="bg-white rounded-t-2xl shadow-2xl p-6 md:p-10 w-full transition-transform transform">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
@@ -224,7 +228,7 @@ const UberVehicleSelection = ({
             {displayVehicles.map((vehicle, index) => (
               <div
                 key={vehicle.id}
-                className={`py-4 border rounded-lg transition-colors ${
+                className={`py-4 px-3 border rounded-lg transition-colors ${
                   selectedVehicle?.id === vehicle.id
                     ? "bg-gray-100"
                     : "hover:bg-gray-50"

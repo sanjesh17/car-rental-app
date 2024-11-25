@@ -9,8 +9,6 @@ const AdminDashboardPage = () => {
     <div className="min-h-screen">
       <Navigation />
       <AdminDashboard />
-      <FooterSection />
-      <AuthModel />
     </div>
   );
 };
