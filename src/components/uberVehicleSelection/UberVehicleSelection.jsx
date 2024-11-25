@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import Autoimage from "../../assets/Auto.jpg";
-import Sedanimage from "../../assets/Sedan.png";
-import Xuvimage from "../../assets/Xuv.avif";
+import Autoimage from "../../assets/Auto.png";
+import Sedanimage from "../../assets/Sedan1.png";
+import Xuvimage from "../../assets/Premier.png";
 import {
   Clock,
   Users,
@@ -12,7 +12,7 @@ import {
   Star,
   Loader2,
 } from "lucide-react";
-import LoadingScreen from '../loadingScreen/LoadingScreen';
+import LoadingScreen from "../loadingScreen/LoadingScreen";
 
 const UberVehicleSelection = ({
   pickup,
@@ -29,6 +29,11 @@ const UberVehicleSelection = ({
   const [wsConnected, setWsConnected] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   // Add useEffect to handle scroll locking
   useEffect(() => {
@@ -45,36 +50,38 @@ const UberVehicleSelection = ({
 
   useEffect(() => {
     console.log("Connecting to WebSocket...");
-    const websocket = new WebSocket('ws://localhost:5000');
-    
+    const websocket = new WebSocket("ws://localhost:5000");
+
     websocket.onopen = () => {
-      console.log('WebSocket Connected');
+      console.log("WebSocket Connected");
       setWsConnected(true);
-      
-      websocket.send(JSON.stringify({
-        type: 'register',
-        role: 'user',
-        userId: 'user-123'
-      }));
+
+      websocket.send(
+        JSON.stringify({
+          type: "register",
+          role: "user",
+          userId: "user-123",
+        })
+      );
     };
 
     websocket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('Received message:', data);
-        
-        if (data.type === 'driver_accepted') {
-          console.log('Driver accepted:', data.driver);
+        console.log("Received message:", data);
+
+        if (data.type === "driver_accepted") {
+          console.log("Driver accepted:", data.driver);
           setSelectedDriver(data.driver);
           setWaitingForDriver(false);
         }
       } catch (error) {
-        console.error('Error processing message:', error);
+        console.error("Error processing message:", error);
       }
     };
 
     websocket.onerror = (error) => {
-      console.error('WebSocket Error:', error);
+      console.error("WebSocket Error:", error);
     };
 
     setWs(websocket);
@@ -90,13 +97,12 @@ const UberVehicleSelection = ({
     { id: "recommended", label: "Recommended" },
     { id: "popular", label: "Popular" },
     { id: "premium", label: "Premium" },
-    { id: "economy", label: "Economy" },
   ];
 
   const vehicles = [
     {
       id: 1,
-      type: "UberGo",
+      type: "Rickshaw",
       category: "recommended",
       image: Autoimage,
       arrivalTime: "4",
@@ -110,7 +116,7 @@ const UberVehicleSelection = ({
     },
     {
       id: 2,
-      type: "Premier",
+      type: "Sedan",
       category: "premium",
       image: Sedanimage,
       arrivalTime: "5",
@@ -121,7 +127,7 @@ const UberVehicleSelection = ({
     },
     {
       id: 3,
-      type: "UberXL",
+      type: "XUV",
       category: "popular",
       image: Xuvimage,
       arrivalTime: "7",
@@ -129,17 +135,6 @@ const UberVehicleSelection = ({
       description: "SUVs and mini-vans",
       capacity: "6",
       rating: 4.7,
-    },
-    {
-      id: 4,
-      type: "Auto",
-      category: "economy",
-      image: "/api/placeholder/84/84",
-      arrivalTime: "3",
-      price: "189",
-      description: "Auto rickshaw rides",
-      capacity: "3",
-      rating: 4.6,
     },
   ];
 
@@ -149,23 +144,25 @@ const UberVehicleSelection = ({
 
   const handleConfirmRide = () => {
     if (!selectedVehicle || !wsConnected) return;
-    
+
     try {
       setWaitingForDriver(true);
-      ws.send(JSON.stringify({
-        type: 'ride_request',
-        pickup,
-        drop,
-        selectedTime,
-        vehicle: selectedVehicle,
-        userId: 'user-123', // Replace with actual user ID
-        estimatedPrice: selectedVehicle.price,
-        requestId: Date.now().toString()
-      }));
+      ws.send(
+        JSON.stringify({
+          type: "ride_request",
+          pickup,
+          drop,
+          selectedTime,
+          vehicle: selectedVehicle,
+          userId: "user-123", // Replace with actual user ID
+          estimatedPrice: selectedVehicle.price,
+          requestId: Date.now().toString(),
+        })
+      );
     } catch (error) {
-      console.error('Error sending ride request:', error);
+      console.error("Error sending ride request:", error);
       setWaitingForDriver(false);
-      alert('Failed to send ride request. Please try again.');
+      alert("Failed to send ride request. Please try again.");
     }
   };
 
@@ -186,89 +183,67 @@ const UberVehicleSelection = ({
   );
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 overflow-hidden modal-open">
+    <div
+      className={`fixed inset-0 z-50 overflow-hidden modal-open transition-opacity duration-300`}
+    >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
-      <div className="relative h-full w-full flex items-end sm:items-center justify-center">
-        <div className="bg-white w-full h-[85vh] sm:h-auto sm:max-h-[85vh] sm:w-[560px] sm:rounded-xl overflow-hidden">
+      <div className={`relative flex flex-col h-full justify-end transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform translate-y-full'}`}>
+        <div className="bg-white rounded-t-2xl shadow-2xl p-6 md:p-10 w-full transition-transform transform">
           {/* Header */}
-          <div className="sticky top-0 bg-white z-10 px-4 py-3 border-b">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                ←
-              </button>
-              <div>
-                <h1 className="font-semibold text-2xl">Choose a ride</h1>
-                <p className="text-sm text-gray-500">
-                  {selectedTime === "now" ? "Now" : selectedTime} •{" "}
-                  {pickup.split(",")[0]} to {drop.split(",")[0]}
-                </p>
-              </div>
-            </div>
-
-            {/* Category Tabs */}
-            <div className="mt-4 flex gap-3 overflow-x-auto hide-scrollbar">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-full whitespace-nowrap text-sm transition-colors
-                    ${
-                      selectedCategory === category.id
-                        ? "bg-black text-white"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={onBack}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              ←
+            </button>
+            <h1 className="font-semibold text-2xl">Choose a ride</h1>
+            <div className="w-8" />
           </div>
 
-          {/* Vehicle List */}
-          <div className="overflow-y-auto h-[calc(100%-180px)] px-4">
+          {/* Category Tabs */}
+          <div className="flex gap-3 overflow-x-auto hide-scrollbar mb-4">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex-1 p-3 rounded-xl transition-colors
+                  ${
+                    selectedCategory === category.id
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Vehicle List - Show all vehicles without scrolling */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {displayVehicles.map((vehicle, index) => (
               <div
                 key={vehicle.id}
-                className={`py-4 ${
-                  index !== displayVehicles.length - 1 ? "border-b" : ""
+                className={`py-4 border rounded-lg transition-colors ${
+                  selectedVehicle?.id === vehicle.id
+                    ? "bg-gray-100"
+                    : "hover:bg-gray-50"
                 }`}
+                onClick={() => handleVehicleSelect(vehicle)}
               >
-                <div
-                  className={`flex items-center gap-4 cursor-pointer p-2 rounded-lg transition-colors ${
-                    selectedVehicle?.id === vehicle.id
-                      ? "bg-gray-100"
-                      : "hover:bg-gray-50"
-                  }`}
-                  onClick={() => handleVehicleSelect(vehicle)}
-                >
-                  {/* Vehicle Image */}
-                  <div className="relative w-[84px] h-[84px] flex-shrink-0">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-[84px] h-[84px] flex-shrink-0 overflow-hidden rounded-lg">
                     <img
                       src={vehicle.image}
                       alt={vehicle.type}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="w-full h-full scale-[1.4]"
                     />
-                    {vehicle.discount && (
-                      <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs px-2 py-1 rounded-tr-lg rounded-bl-lg">
-                        {vehicle.discount}
-                      </div>
-                    )}
                   </div>
-
-                  {/* Vehicle Info */}
                   <div className="flex-grow">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold">{vehicle.type}</span>
-                      {vehicle.popular && (
-                        <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
-                          Popular
-                        </span>
-                      )}
+                      <div className="font-semibold">₹{vehicle.price}</div>
                     </div>
-
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
                       <div className="flex items-center gap-1">
                         <Clock size={14} />
@@ -283,54 +258,21 @@ const UberVehicleSelection = ({
                         {vehicle.rating}
                       </div>
                     </div>
-
                     <p className="text-sm text-gray-600">
                       {vehicle.description}
                     </p>
                   </div>
-
-                  {/* Price */}
-                  <div className="text-right">
-                    <div className="font-semibold">₹{vehicle.price}</div>
-                    <button className="text-sm text-gray-400 hover:text-black">
-                      <Heart size={16} />
-                    </button>
-                  </div>
                 </div>
               </div>
             ))}
-
-            {/* Show More/Less Button */}
-            {filteredVehicles.length > 3 && (
-              <button
-                onClick={() => setShowAllOptions(!showAllOptions)}
-                className="w-full py-4 text-center text-gray-500 hover:text-black flex items-center justify-center gap-1"
-              >
-                {showAllOptions ? (
-                  <>
-                    See less options <ChevronUp size={16} />
-                  </>
-                ) : (
-                  <>
-                    See more options <ChevronDown size={16} />
-                  </>
-                )}
-              </button>
-            )}
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-white border-t px-4 py-3">
-            <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-              <span>Cash</span>
-              <button className="flex items-center gap-1 hover:text-black">
-                Change <ChevronDown size={14} />
-              </button>
-            </div>
+          <div className="mt-4">
             <button
               className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                 selectedVehicle
-                  ? "bg-black text-white hover:bg-gray-800"
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
               }`}
               onClick={handleConfirmRide}
@@ -352,7 +294,7 @@ const UberVehicleSelection = ({
   return (
     <>
       {!waitingForDriver && (
-        <div className="fixed inset-0 bg-white z-40">
+        <div className={`fixed inset-0 z-40 transition-opacity duration-300`}>
           {createPortal(modalContent, document.body)}
         </div>
       )}

@@ -5,3 +5,13 @@
   overflow: hidden !important;
   padding-right: var(--scrollbar-compensation);
 }
+
+@layer utilities {
+  .backdrop-blur {
+    backdrop-filter: blur(8px);
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+}
