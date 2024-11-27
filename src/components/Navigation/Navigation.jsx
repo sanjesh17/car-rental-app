@@ -24,17 +24,21 @@ const Navigation = () => {
   ];
 
   const mobileNavLinks = [
-    { label: "Home", href: "/", icon: <Home className="h-6 w-6" /> },
+    { label: "Home", href: "/", icon: <Home className="h-4.5 w-4.5" /> },
     {
       label: "Drive",
       href: "/driver-dashboard",
-      icon: <Car className="h-6 w-6" />,
+      icon: <Car className="h-4.5 w-4.5" />,
     },
-    { label: "Safety", href: "/safety", icon: <Shield className="h-6 w-6" /> },
+    {
+      label: "Safety",
+      href: "/safety",
+      icon: <Shield className="h-4.5 w-4.5" />,
+    },
     {
       label: "Profile",
       href: "/auth/signup",
-      icon: <User className="h-6 w-6" />,
+      icon: <User className="h-4.5 w-4.5" />,
     },
   ];
 
@@ -95,9 +99,9 @@ const Navigation = () => {
       </nav>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 font-custom">
         <div className="bg-white/70 backdrop-blur-xl shadow-2xl border-t border-gray-100">
-          <div className="flex justify-between px-6 py-4">
+          <div className="flex justify-between px-6 py-2">
             {mobileNavLinks.map((link) => (
               <a
                 key={link.label}
@@ -121,7 +125,7 @@ const Navigation = () => {
                     •
                   </span>
                 </div>
-                <span className="text-md font-semibold mt-1 opacity-70 group-hover:opacity-100 transition-opacity duration-200">
+                <span className="text-sm font-semibold mt-1 opacity-70 group-hover:opacity-100 transition-opacity duration-200">
                   {link.label}
                 </span>
               </a>
