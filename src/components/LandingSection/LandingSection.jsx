@@ -15,7 +15,7 @@ import {
   Calendar,
   ArrowRight,
 } from "lucide-react";
-import carBg from "../../assets/landing1.jpg";
+import carBg from "../../assets/bg.png";
 
 const LandingSection = () => {
   const [activeTrip, setActiveTrip] = useState("quickTrip");
@@ -352,14 +352,14 @@ const LandingSection = () => {
       className={`flex flex-col items-center justify-center w-full p-4 rounded-xl transition-all duration-200 
                   ${
                     activeTrip === type
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
+                      ? "bg-[#6850A4] text-white shadow-lg shadow-blue-200"
                       : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-100"
                   }`}
       onClick={() => setActiveTrip(type)}
     >
       <div
         className={`p-2 rounded-lg mb-2 ${
-          activeTrip === type ? "bg-blue-500" : "bg-blue-50"
+          activeTrip === type ? "bg-[#715ea1]" : "bg-blue-50"
         }`}
       >
         {icon}
@@ -421,15 +421,14 @@ const LandingSection = () => {
   return (
     <div className="min-h-screen relative">
       <div
-        className="absolute inset-0 bg-cover bg-center blur-md"
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${carBg})` }}
       />
-      <Navigation />
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Book Your Ride
+            <h1 className="lg:text-4xl text-3xl font-bold text-[#0f1e35] mb-2 font-custom">
+              Book Your Ride Now
             </h1>
             <p className="text-gray-600">
               Choose your trip type and get started
@@ -468,8 +467,8 @@ const LandingSection = () => {
               <div className="flex justify-center pt-6">
                 <button
                   onClick={handleSearch}
-                  className="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-medium 
-                           hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 
+                  className="w-full bg-[#6850A4] text-white px-6 py-4 rounded-xl font-medium 
+                           hover:bg-[#B858A2] active:bg-blue-800 transition-all duration-200 
                            flex items-center justify-center gap-3 shadow-lg shadow-blue-600/30"
                 >
                   <Car className="h-5 w-5" />

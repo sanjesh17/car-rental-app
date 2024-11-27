@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        custom: ["Montserrat", "sans-serif"],
+      },
       keyframes: {
         "bounce-horizontal": {
           "0%, 100%": { transform: "translateX(25%)" },
@@ -15,12 +18,12 @@ module.exports = {
         slideDown: {
           "0%": { opacity: "0", transform: "translateY(-10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
-        }
+        },
       },
       animation: {
         "bounce-horizontal": "bounce-horizontal 2s infinite",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar-hide")],
 };

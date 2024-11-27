@@ -1,132 +1,114 @@
+"use client";
 import React from "react";
-import { Link } from "react-router-dom";
-import withFadeInAnimation from "../../hooks/withFadeInAnimation";
-import "../../hooks/fadeinanimation.css";
-import speedo from "../../assets/speedo.jpg";
 
-const FleetSection = () => {
-  const carDetails = [
-    {
-      image: speedo,
-      name: "Toyota Innova",
-      fuel: "Diesel",
-      seats: "7 Passengers",
-      price: "₹2,500",
-      tag: "Most Popular",
-    },
-    {
-      image: speedo,
-      name: "Honda City",
-      fuel: "Petrol",
-      seats: "5 Passengers",
-      price: "₹1,800",
-      tag: "Best Value",
-    },
-  ];
+// Custom Image Component for non-Next.js projects
+const Image = ({ src, alt, className }) => (
+  <img src={src} alt={alt} className={className} />
+);
 
-  const handleBookNow = (car) => {
-    // Scroll to top smoothly
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
+// Card Component
+const Card = ({ card, index }) => {
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
-            Explore Our Fleet
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Choose from our carefully curated selection of comfortable and
-            reliable vehicles
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {carDetails.map((car, index) => (
-            <div
-              key={index}
-              className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2"
-            >
-              <div className="relative">
-                <img
-                  src={car.image}
-                  alt={car.name}
-                  className="w-full h-64 object-cover"
-                />
-                <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                  {car.tag}
-                </div>
-              </div>
-
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {car.name}
-                  </h3>
-                  <span className="text-blue-600 font-semibold text-lg">
-                    {car.price}/day
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-gray-600 border-t border-gray-100 pt-4">
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 mr-2 text-blue-500"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 011 1v3a1 1 0 01-2 0V8a1 1 0 011-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {car.fuel}
-                  </div>
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 mr-2 text-green-500"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                    </svg>
-                    {car.seats}
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <button
-                    className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    onClick={() => {
-                      handleBookNow(car);
-                    }}
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/fleet"
-            className="px-8 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-colors inline-block"
-          >
-            View Full Fleet
-          </Link>
+    <div
+      key={index}
+      className="flex-shrink-0 snap-center w-[80%] sm:w-[60%] md:w-[40%] lg:w-[30%] bg-white rounded-2xl overflow-hidden shadow-lg 
+                 transition-all duration-300 transform hover:scale-[0.97] cursor-pointer"
+    >
+      <div className="relative h-64">
+        <Image
+          src={card.src}
+          alt={card.title}
+          className="w-full h-full object-cover rounded-t-2xl"
+        />
+        <div className="absolute bottom-4 left-4 bg-[#e3f2ff] bg-opacity-50 text-neutral-800 px-4 py-1 rounded-full text-sm">
+          {card.category}
         </div>
       </div>
-    </section>
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-neutral-800 mb-2">
+          {card.title}
+        </h3>
+        <div className="text-neutral-600">{card.content}</div>
+      </div>
+    </div>
   );
 };
 
-export default withFadeInAnimation(FleetSection);
+// Carousel Component
+const Carousel = ({ items }) => {
+  return (
+    <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth px-6 pb-8 -mx-6 scrollbar-hide">
+      {items}
+    </div>
+  );
+};
+
+// FleetSection Component
+function FleetSection() {
+  const cards = data.map((card, index) => (
+    <Card key={card.src} card={card} index={index} />
+  ));
+
+  return (
+    <section className="py-5 bg-[#e3f2ff] overflow-x-auto scrollbar-hide lg:pl-8">
+      <div className="container mx-auto px-4">
+        {/* Title */}
+        <h2 className="max-w-7xl px-2 lg:px-0 text-2xl md:text-3xl font-bold text-neutral-800 mb-6">
+          Explore Our Cab Services
+        </h2>
+        {/* Carousel */}
+        <Carousel items={cards} />
+      </div>
+    </section>
+  );
+}
+export default FleetSection;
+
+// Dummy Content for each card
+const DummyContent = ({ description }) => {
+  return <p className="text-neutral-600 text-base md:text-lg">{description}</p>;
+};
+
+// Card Data for Cab Services
+const data = [
+  {
+    category: "Round Trip",
+    title: "Comfortable Journeys Both Ways",
+    src: "https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?q=80&w=3000&auto=format&fit=crop",
+    content: (
+      <DummyContent description="Plan your round trip with ease and comfort. Ideal for family vacations and business travels." />
+    ),
+  },
+  {
+    category: "Single Trip",
+    title: "One-Way, Your Way",
+    src: "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?q=80&w=3000&auto=format&fit=crop",
+    content: (
+      <DummyContent description="Need a one-way ride? We've got you covered. Book reliable rides to your destination." />
+    ),
+  },
+  {
+    category: "Car Rental",
+    title: "Self-Drive Options Available",
+    src: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=3000&auto=format&fit=crop",
+    content: (
+      <DummyContent description="Choose from our fleet of cars for self-drive rentals. Perfect for road trips and city rides." />
+    ),
+  },
+  {
+    category: "Goods Delivery",
+    title: "Hassle-Free Goods Transport",
+    src: "https://images.unsplash.com/photo-1581091870620-e6af13c9b7a7?q=80&w=3000&auto=format&fit=crop",
+    content: (
+      <DummyContent description="Reliable goods delivery services for all your business and personal needs." />
+    ),
+  },
+  {
+    category: "Premium Services",
+    title: "Luxury Vehicles for Special Occasions",
+    src: "https://images.unsplash.com/photo-1606312617440-391c66266dc4?q=80&w=3000&auto=format&fit=crop",
+    content: (
+      <DummyContent description="Celebrate in style with our premium fleet. Ideal for weddings, parties, and corporate events." />
+    ),
+  },
+];

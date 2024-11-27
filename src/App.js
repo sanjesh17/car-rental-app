@@ -21,7 +21,7 @@ import GoodsFinalPage from "./pages/GoodsFinalPage";
 
 function App() {
   return (
-    <div>
+    <div className="font-custom">
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
