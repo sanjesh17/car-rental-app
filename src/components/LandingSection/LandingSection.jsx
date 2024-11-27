@@ -349,16 +349,16 @@ const LandingSection = () => {
   // Update the TripTypeButton component
   const TripTypeButton = ({ type, icon, label }) => (
     <button
-      className={`flex flex-col items-center justify-center w-full p-4 rounded-xl transition-all duration-200 
+      className={`flex items-center justify-start w-full p-3 rounded-xl transition-all duration-200 
                   ${
                     activeTrip === type
-                      ? "bg-[#6850A4] text-white shadow-lg shadow-blue-200"
+                      ? "bg-[#6850A4] text-white shadow-lg"
                       : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-100"
                   }`}
       onClick={() => setActiveTrip(type)}
     >
       <div
-        className={`p-2 rounded-lg mb-2 ${
+        className={`p-2 rounded-lg mr-3 ${
           activeTrip === type ? "bg-[#715ea1]" : "bg-blue-50"
         }`}
       >
