@@ -51,7 +51,6 @@ const MobileHeader = ({ onProfileClick }) => {
           const { latitude, longitude } = position.coords;
           const latlng = `${latitude},${longitude}`;
 
-          // Use the proxy route for reverse geocoding
           axios
             .get(`http://localhost:5000/api/proxy/ola-maps/reverse-geocode`, {
               params: { latlng },

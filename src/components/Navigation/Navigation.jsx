@@ -1,21 +1,27 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Home,
   Car,
   Shield,
   User,
   HelpCircle,
-  Menu,
-  X,
-  ChevronDown,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import MobileHeader from "../mobileHeader/MobileHeader";
+import { useAuth } from "../../authUtils";
 
 const Navigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout, isDriverAuthenticated, driver } = useAuth();
+
+  const getCurrentUserName = () => {
+    if (isDriverAuthenticated && driver) {
+      return driver.name;
+    }
+    if (isAuthenticated && user) {
+      return user.name;
+    }
+    return "User";
+  };
 
   const desktopNavLinks = [
     { label: "Home", href: "/" },
@@ -38,7 +44,7 @@ const Navigation = () => {
     },
     {
       label: "Profile",
-      href: "/auth/signup",
+      href: isAuthenticated ? "/profile" : "/auth/signup",
       icon: <User className="h-4.5 w-4.5" />,
     },
   ];
@@ -53,8 +59,7 @@ const Navigation = () => {
             <div className="flex-shrink-0">
               <a
                 href="/"
-                className="text-2xl font-bold text-gray-900 tracking-tight hover:text-[#6850A4]
-                         transition-colors duration-200"
+                className="text-2xl font-bold text-gray-900 tracking-tight hover:text-[#6850A4] transition-colors duration-200"
               >
                 LOGO
               </a>
@@ -66,9 +71,7 @@ const Navigation = () => {
                 <a
                   key={index}
                   href={link.href}
-                  className="text-[15px] font-medium text-gray-600 flex items-center py-2.5 px-4 
-                           rounded-xl hover:text-[#6850A4] hover:bg-blue-50/80 
-                           transition-all duration-200"
+                  className="text-[15px] font-medium text-gray-600 flex items-center py-2.5 px-4 rounded-xl hover:text-[#6850A4] hover:bg-blue-50/80 transition-all duration-200"
                 >
                   {link.label}
                 </a>
@@ -77,23 +80,31 @@ const Navigation = () => {
 
             {/* Right Side Buttons */}
             <div className="flex items-center space-x-2">
-              <button
-                className="text-sm font-medium text-gray-600 hover:text-[#6850A4] px-4 py-2.5 
-                           rounded-xl hover:bg-blue-50/80 transition-all duration-200 
-                           flex items-center gap-2"
-              >
+              <button className="text-sm font-medium text-gray-600 hover:text-[#6850A4] px-4 py-2.5 rounded-xl hover:bg-blue-50/80 transition-all duration-200 flex items-center gap-2">
                 <HelpCircle className="h-4 w-4" />
                 Help
               </button>
-              <button
-                onClick={() => navigate("/auth/signup")}
-                className="flex items-center gap-2 text-sm font-medium bg-[#6850A4] text-white 
-                           px-5 py-2.5 rounded-xl hover:bg-[#B858A2] active:bg-[#6850A4]
-                           transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <User className="h-4 w-4" />
-                <span>Sign in</span>
-              </button>
+              {isAuthenticated || isDriverAuthenticated ? (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">
+                    Welcome, {getCurrentUserName()}
+                  </span>
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-2 text-sm font-medium bg-red-500 text-white px-5 py-2.5 rounded-xl hover:bg-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate("/auth/signup")}
+                  className="flex items-center gap-2 text-sm font-medium bg-[#6850A4] text-white px-5 py-2.5 rounded-xl hover:bg-[#B858A2] active:bg-[#6850A4] transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Sign in</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -107,22 +118,11 @@ const Navigation = () => {
               <a
                 key={link.label}
                 href={link.href}
-                className="flex flex-col items-center justify-center 
-                           text-gray-600 hover:text-[#6850A4] 
-                           transition-colors duration-200 
-                           group relative"
+                className="flex flex-col items-center justify-center text-gray-600 hover:text-[#6850A4] transition-colors duration-200 group relative"
               >
                 <div className="relative">
                   {link.icon}
-                  <span
-                    className="absolute -top-1 -right-1 
-                               bg-[#6850A4] text-white 
-                               w-5 h-5 rounded-full 
-                               flex items-center justify-center 
-                               text-[8px] 
-                               opacity-0 group-hover:opacity-100 
-                               transition-opacity duration-200"
-                  >
+                  <span className="absolute -top-1 -right-1 bg-[#6850A4] text-white w-5 h-5 rounded-full flex items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     •
                   </span>
                 </div>

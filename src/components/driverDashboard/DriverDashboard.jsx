@@ -8,11 +8,16 @@ import {
   Calendar,
   TrendingUp,
 } from "lucide-react";
+import { useAuth } from "../../authUtils";
+import axios from "axios";
 
 const DriverDashboard = () => {
   const [ws, setWs] = useState(null);
   const [bookingRequests, setBookingRequests] = useState([]);
   const [upcomingTrips, setUpcomingTrips] = useState([]);
+  const [driverData, setDriverData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [btnloading, setBtnLoading] = useState(false);
 
   const analytics = {
     totalEarnings: 12500,
@@ -25,15 +30,73 @@ const DriverDashboard = () => {
     onlineHours: 180,
   };
 
+  function decodeToken(token) {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace("-", "+").replace("_", "/");
+      const payload = JSON.parse(window.atob(base64));
+
+      if (payload.exp * 1000 < Date.now()) {
+        throw new Error("Token expired");
+      }
+
+      return {
+        id: payload.id,
+        name: payload.name,
+        phoneNumber: payload.phone,
+      };
+    } catch (error) {
+      throw new Error("Invalid token");
+    }
+  }
+
+  const changeStatus = async () => {
+    setBtnLoading(true);
+    try {
+      const response = await axios.put(
+        `/api/drivers/${driverData.data._id}/status`,
+        {
+          status: driverData.data.status === "Online" ? "Offline" : "Online",
+        }
+      );
+      if (response.data.success) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log(
+        error.response?.data?.message || "Network error. Please try again."
+      );
+    } finally {
+      setBtnLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchDriverData = async () => {
+      try {
+        const dData = decodeToken(localStorage.getItem("token"));
+        const response = await fetch(`/api/drivers/${dData.id}`);
+        if (!response.ok) throw new Error("Failed to fetch driver data");
+        const data = await response.json();
+        setDriverData(data);
+      } catch (err) {
+        console.error("Error fetching driver data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDriverData();
+  }, []);
+
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:5000");
-
     websocket.onopen = () => {
       websocket.send(
         JSON.stringify({
           type: "register",
           role: "driver",
-          driverId: "driver-123",
+          driverId: driverData?.data?._id,
         })
       );
     };
@@ -65,7 +128,7 @@ const DriverDashboard = () => {
         websocket.close();
       }
     };
-  }, []);
+  }, [driverData]);
 
   const handleAcceptBooking = (request) => {
     if (!ws) return;
@@ -77,11 +140,11 @@ const DriverDashboard = () => {
         userId: request.userId,
         requestId: request.requestId,
         driverInfo: {
-          id: "driver-123",
-          name: "John Doe",
-          vehicle: "Toyota Camry",
+          id: driverData.data_id,
+          name: driverData.data.personalInfo.firstName,
+          vehicle: driverData.data.vehicleInfo.vehicleModel,
           rating: 4.8,
-          phone: "123-456-7890",
+          phone: driverData.data.personalInfo.phone,
         },
       })
     );
@@ -130,14 +193,24 @@ const DriverDashboard = () => {
       <header className="flex justify-between items-center mb-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-sm text-gray-500">Welcome, John Doe</p>
+          <p className="text-sm text-gray-500">
+            {loading
+              ? "Loading..."
+              : `Welcome, ${
+                  driverData?.data?.personalInfo?.firstName || "Driver"
+                }`}
+          </p>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          <div
+            className="py-2 px-5 rounded-xl  font-semibold bg-red-500 text-white cursor-pointer hover:bg-red-400 transition-all duration-200"
+            onClick={changeStatus}
+          >
+            {!btnloading ? driverData?.data?.status : "Loading"}
+          </div>
         </div>
       </header>
 
-      {/* Earnings Grid */}
       <div className="grid grid-cols-2 gap-4">
         <StatCard
           icon={<Wallet className="text-green-500" size={24} />}

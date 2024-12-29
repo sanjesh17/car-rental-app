@@ -89,7 +89,7 @@ const GoodsSelection = () => {
       label: "Electronics",
       description: "Fragile electronic devices",
     },
-    
+
     {
       value: "other",
       label: "Other",
@@ -243,7 +243,7 @@ const GoodsSelection = () => {
               </div>
             </div>
 
-            <div>
+            <div className="pb-16 lg:pb-0">
               <label
                 htmlFor="weight"
                 className="block text-sm font-medium text-gray-700 mb-2"
@@ -271,7 +271,7 @@ const GoodsSelection = () => {
           </form>
         </div>
 
-        <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4">
+        <div className="fixed bottom-16 lg:bottom-0 left-0 w-full bg-white border-t p-4">
           <div className="max-w-md mx-auto flex space-x-4">
             <Link to="/" className="flex-1">
               <button

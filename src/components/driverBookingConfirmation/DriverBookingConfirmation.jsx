@@ -201,7 +201,7 @@ const DriverBookingConfirmation = () => {
   );
 
   const BottomBar = () => (
-    <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4">
+    <div className="fixed bottom-16 left-0 w-full bg-white border-t p-4">
       <div className="max-w-md mx-auto flex space-x-4">
         <button
           onClick={() => navigate(-1)}
@@ -239,6 +239,7 @@ const DriverBookingConfirmation = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 pt-10">
       <BookingProgress />
+      <br />
       <div className="max-w-md mx-auto px-4 space-y-4">
         <TripCard />
         <DriverCard />

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../authUtils"; // Import the useAuth hook
+import { useAuth } from "../../authUtils";
 import {
-  Smartphone,
+  Truck,
   Shield,
   ArrowRight,
-  Truck,
   Package,
   MapPin,
   Coffee,
@@ -14,7 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-const SignUp = () => {
+const DriverLogin = () => {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
@@ -22,7 +21,7 @@ const SignUp = () => {
   const [error, setError] = useState("");
 
   // Use authentication context
-  const { login } = useAuth();
+  const { driverLogin } = useAuth();
   const navigate = useNavigate();
 
   const handlePhoneSubmit = async (e) => {
@@ -39,14 +38,15 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/user/send-otp", {
+      console.log("Sending OTP to phone:", cleanedPhone); // Add this line
+      const response = await axios.post("/api/driver/send-otp", {
         phone: cleanedPhone,
       });
 
       if (response.data.success) {
         setStep(2);
       } else {
-        setError(response.data.message || "Failed to send OTP");
+        setError(response.data.message || "Login failed");
       }
     } catch (error) {
       setError(
@@ -71,17 +71,15 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/user/verify-otp", {
+      console.log("Verifying OTP with phone:", phone, "and OTP:", otp);
+      const response = await axios.post("/api/driver/verify-otp", {
         phone: phone.replace(/\D/g, ""),
         otp: cleanedOtp,
       });
 
       if (response.data.success) {
-        // Use login method from AuthContext
-        login(response.data.token);
-
-        // Navigate to profile or dashboard
-        navigate("/");
+        driverLogin(response.data.token);
+        navigate("/driver-dashboard");
       } else {
         setError(response.data.message || "OTP verification failed");
       }
@@ -99,7 +97,7 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/user/send-otp", {
+      const response = await axios.post("/api/driver/send-otp", {
         phone: phone.replace(/\D/g, ""),
       });
 
@@ -118,40 +116,40 @@ const SignUp = () => {
   };
 
   return (
-    <div className="h-max py-40 md:min-h-screen relative bg-gradient-to-br from-indigo-50 to-white flex flex-col justify-center overflow-hidden">
+    <div className="h-max py-40 md:min-h-screen relative bg-gradient-to-br from-green-50 to-white flex flex-col justify-center overflow-hidden">
       {/* Background Icons */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full">
           <div className="absolute animate-bounce top-10 left-10">
-            <Truck className="w-24 h-24 text-indigo-300" />
+            <Truck className="w-24 h-24 text-green-300" />
           </div>
           <div className="absolute animate-ping bottom-10 right-10">
-            <Package className="w-24 h-24 text-indigo-300" />
+            <Package className="w-24 h-24 text-green-300" />
           </div>
           <div className="absolute animate-spin top-1/3 left-1/4">
-            <MapPin className="w-24 h-24 text-indigo-300" />
+            <MapPin className="w-24 h-24 text-green-300" />
           </div>
           <div className="absolute animate-pulse bottom-1/4 right-1/3">
-            <Coffee className="w-24 h-24 text-indigo-300" />
+            <Coffee className="w-24 h-24 text-green-300" />
           </div>
           <div className="absolute animate-bounce top-1/2 right-1/4">
-            <Rocket className="w-24 h-24 text-indigo-300" />
+            <Rocket className="w-24 h-24 text-green-300" />
           </div>
         </div>
       </div>
 
       <div className="max-w-sm md:max-w-md mx-auto w-full relative z-10">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 border border-indigo-100">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 border border-green-100">
           <div className="text-center">
-            <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 hover:rotate-45 transition-transform duration-300">
-              <Smartphone className="w-10 h-10 text-indigo-600" />
+            <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 hover:rotate-45 transition-transform duration-300">
+              <Truck className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              {step === 1 ? "Get Started" : "Enter OTP"}
+              {step === 1 ? "Driver Login" : "Enter OTP"}
             </h1>
             <p className="text-gray-600">
               {step === 1
-                ? "Enter your phone number"
+                ? "Enter your registered phone number"
                 : "Verify OTP sent to your number"}
             </p>
           </div>
@@ -167,7 +165,7 @@ const SignUp = () => {
             <form onSubmit={handlePhoneSubmit} className="space-y-4">
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 group-focus-within:text-indigo-600 transition">
+                  <span className="text-gray-500 group-focus-within:text-green-600 transition">
                     +91
                   </span>
                 </div>
@@ -179,15 +177,15 @@ const SignUp = () => {
                     const value = e.target.value.replace(/\D/g, "");
                     setPhone(value);
                   }}
-                  placeholder="Enter Your Number"
+                  placeholder="Enter Your Registered Number"
                   maxLength="10"
-                  className="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                  className="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-green-300 transition"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center"
+                className="w-full py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition transform hover:scale-105 flex items-center justify-center"
               >
                 {isLoading ? (
                   <>
@@ -214,14 +212,14 @@ const SignUp = () => {
                       newOtp[index] = e.target.value.replace(/\D/g, "");
                       setOtp(newOtp.join(""));
                     }}
-                    className="w-12 h-14 text-center border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 hover:border-indigo-300 transition"
+                    className="w-12 h-14 text-center border-2 rounded-lg focus:ring-2 focus:ring-green-500 hover:border-green-300 transition"
                   />
                 ))}
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center"
+                className="w-full py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition transform hover:scale-105 flex items-center justify-center"
               >
                 {isLoading ? (
                   <>
@@ -238,7 +236,7 @@ const SignUp = () => {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-indigo-600 ml-1 font-medium hover:underline"
+                  className="text-green-600 ml-1 font-medium hover:underline"
                 >
                   Change Number
                 </button>
@@ -249,7 +247,7 @@ const SignUp = () => {
                   type="button"
                   onClick={handleResendOtp}
                   disabled={isLoading}
-                  className="text-indigo-600 ml-1 font-medium hover:underline"
+                  className="text-green-600 ml-1 font-medium hover:underline"
                 >
                   Resend OTP
                 </button>
@@ -259,8 +257,8 @@ const SignUp = () => {
 
           <div className="text-center text-xs text-gray-500 mt-4">
             By continuing, you're joining our
-            <button className="text-indigo-600 ml-1 font-medium hover:underline">
-              User Club
+            <button className="text-green-600 ml-1 font-medium hover:underline">
+              Driver Network
             </button>
           </div>
         </div>
@@ -269,4 +267,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default DriverLogin;

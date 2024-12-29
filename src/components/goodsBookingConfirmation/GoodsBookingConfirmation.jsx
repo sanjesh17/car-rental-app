@@ -168,7 +168,7 @@ const GoodsBookingConfirmation = () => {
   );
 
   const BottomBar = () => (
-    <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4">
+    <div className="fixed bottom-14 left-0 w-full bg-white border-t p-4">
       <div className="max-w-md mx-auto flex space-x-4">
         <button
           onClick={() => navigate(-1)}
