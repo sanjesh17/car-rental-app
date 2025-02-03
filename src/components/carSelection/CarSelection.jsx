@@ -20,7 +20,7 @@ const CarSelection = () => {
 
   const fetchRentalCars = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/rental-cars');
+      const response = await fetch('https://dropx-backend.onrender.com/api/rental-cars');
       const data = await response.json();
 
       if (data.success) {
@@ -42,7 +42,7 @@ const CarSelection = () => {
         selectedCar: {
           name: `${car.carDetails.vehicleMake} ${car.carDetails.vehicleModel}`,
           type: car.carDetails.fuelType,
-          image: `http://localhost:5000${car.carImage}`,
+          image: `https://dropx-backend.onrender.com${car.carImage}`,
           price: parseFloat(car.rentalDetails.pricePerDay),
           _id: car._id
         },
@@ -174,7 +174,7 @@ const CarSelection = () => {
               >
                 <div className="relative">
                   <img
-                    src={`http://localhost:5000${car.carImage}`}
+                    src={`https://dropx-backend.onrender.com${car.carImage}`}
                     alt={`${car.carDetails.vehicleMake} ${car.carDetails.vehicleModel}`}
                     className="w-full h-48 object-cover"
                   />

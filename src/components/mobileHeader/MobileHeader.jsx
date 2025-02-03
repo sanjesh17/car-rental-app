@@ -52,7 +52,7 @@ const MobileHeader = ({ onProfileClick }) => {
           const latlng = `${latitude},${longitude}`;
 
           axios
-            .get(`http://localhost:5000/api/proxy/ola-maps/reverse-geocode`, {
+            .get(`https://dropx-backend.onrender.com/api/proxy/ola-maps/reverse-geocode`, {
               params: { latlng },
             })
             .then((response) => {

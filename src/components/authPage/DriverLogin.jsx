@@ -13,7 +13,7 @@ const DriverLogin = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/driver/login", {
+      const response = await fetch("https://dropx-backend.onrender.com/api/driver/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

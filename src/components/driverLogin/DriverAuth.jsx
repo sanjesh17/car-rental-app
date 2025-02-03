@@ -14,7 +14,7 @@ const DriverAuth = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/driver/send-otp",
+        "https://dropx-backend.onrender.com/api/driver/send-otp",
         { phone }
       );
       if (response.data.success) {
@@ -30,7 +30,7 @@ const DriverAuth = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/driver/verify-otp",
+        "https://dropx-backend.onrender.com/api/driver/verify-otp",
         {
           phone,
           otp,

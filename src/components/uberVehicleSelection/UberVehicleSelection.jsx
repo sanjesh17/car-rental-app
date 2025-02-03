@@ -103,7 +103,7 @@ const UberVehicleSelection = ({
   useEffect(() => {
     if (!userData) return;
 
-    const websocket = new WebSocket("ws://localhost:5000");
+    const websocket = new WebSocket("wss://dropx-backend.onrender.com");
 
     websocket.onopen = () => {
       console.log("WebSocket Connected");

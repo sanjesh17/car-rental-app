@@ -120,7 +120,7 @@ const DriverOnboarding = () => {
       formDataToSend.append('profileImage', profileImage);
       formDataToSend.append('driverData', JSON.stringify(formData));
 
-      const response = await fetch('http://localhost:5000/api/driver-registration', {
+      const response = await fetch('https://dropx-backend.onrender.com/api/driver-registration', {
         method: 'POST',
         body: formDataToSend,
       });

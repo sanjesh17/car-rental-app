@@ -93,7 +93,7 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/user/signup", {
+      const response = await fetch("https://dropx-backend.onrender.com/api/user/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +105,7 @@ const SignUp = () => {
 
       if (data.success) {
         login(data.token, data.user);
-        navigate("/user-dashboard");
+        navigate("/");
       } else {
         setError(data.message);
       }
@@ -170,10 +170,7 @@ const SignUp = () => {
           )}
 
           {step === 1 ? (
-            <form
-              onSubmit={handlePhoneSubmit}
-              className="space-y-4"
-            >
+            <form onSubmit={handlePhoneSubmit} className="space-y-4">
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 group-focus-within:text-indigo-600 transition">

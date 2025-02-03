@@ -101,7 +101,7 @@ const RentalCarOnboarding = () => {
       formDataToSend.append('carImage', carImage);
       formDataToSend.append('rentalData', JSON.stringify(formData));
 
-      const response = await fetch('http://localhost:5000/api/rental-cars', {
+      const response = await fetch('https://dropx-backend.onrender.com/api/rental-cars', {
         method: 'POST',
         body: formDataToSend,
       });

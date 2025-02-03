@@ -22,15 +22,15 @@ const Navigation = () => {
 
   const desktopNavLinks = [
     { label: "Home", href: "/" },
-    { label: "Drive with us", href: "/driver-dashboard" },
-    { label: "Contact Us", href: "/safety" },
-    { label: "Safety", href: "/safety" },
+    { label: "Driver", href: "/driver-dashboard" },
+    { label: "Contact Us", href: "/" },
+    { label: "Safety", href: "/" },
   ];
 
   const mobileNavLinks = [
     { label: "Home", href: "/", icon: <Home className="h-4.5 w-4.5" /> },
     {
-      label: "Drive",
+      label: "Driver",
       href: "/driver-dashboard",
       icon: <Car className="h-4.5 w-4.5" />,
     },

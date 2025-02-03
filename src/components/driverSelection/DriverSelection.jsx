@@ -23,7 +23,7 @@ const DriverSelection = () => {
 
   const fetchDrivers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/drivers");
+      const response = await fetch("https://dropx-backend.onrender.com/api/drivers");
       const data = await response.json();
 
       if (data.success) {
@@ -46,7 +46,7 @@ const DriverSelection = () => {
         selectedDriver: {
           name: `${driver.personalInfo.firstName} ${driver.personalInfo.lastName}`,
           experience: driver.driverInfo.experience,
-          image: `http://localhost:5000${driver.profileImage}`,
+          image: `https://dropx-backend.onrender.com${driver.profileImage}`,
           phone: driver.personalInfo.phone,
           email: driver.personalInfo.email,
           preferredArea: driver.driverInfo.preferredArea,
@@ -122,7 +122,7 @@ const DriverSelection = () => {
               >
                 <div className="relative">
                   <img
-                    src={`http://localhost:5000${driver.profileImage}`}
+                    src={`https://dropx-backend.onrender.com${driver.profileImage}`}
                     alt={`${driver.personalInfo.firstName} ${driver.personalInfo.lastName}`}
                     className="w-full h-48 object-cover"
                   />

@@ -119,7 +119,7 @@ const DriverDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const websocket = new WebSocket("ws://localhost:5000");
+    const websocket = new WebSocket("wss://dropx-backend.onrender.com");
     websocket.onopen = () => {
       websocket.send(
         JSON.stringify({

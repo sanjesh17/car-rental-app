@@ -37,6 +37,13 @@ const LandingSection = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const role = localStorage.getItem("userType");
+    if (role === "driver") {
+      navigate("/driver-dashboard");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const checkActiveTrip = async () => {
       if (!user?.id) {
         setIsLoading(false);
