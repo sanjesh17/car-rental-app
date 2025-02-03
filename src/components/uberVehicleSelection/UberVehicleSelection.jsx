@@ -17,6 +17,7 @@ import {
 import "./searching.css";
 import DriverAcceptedView from "../driverAcceptedView/DriverAcceptedView";
 import { useAuth } from "../../authUtils";
+import axios from "axios";
 
 const UberVehicleSelection = ({
   pickup,
@@ -34,37 +35,79 @@ const UberVehicleSelection = ({
   const [waitingForDriver, setWaitingForDriver] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [isAccepted, setAccepted] = useState(false);
-  const [driverData, setDriverData] = useState("");
-  const [userData, setUserData] = useState("");
+  const [isAccepted, setIsAccepted] = useState(false);
+  const [driverData, setDriverData] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [activeTrip, setActiveTrip] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { user } = useAuth();
+
+  const checkActiveTrip = async () => {
+    if (!user?.id) return;
+
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`/api/active-trips?userId=${user.id}`);
+
+      if (response.data.success && response.data.data) {
+        const tripData = response.data.data;
+        setActiveTrip(tripData);
+        setIsAccepted(true);
+        setDriverData({
+          type: "driver_response",
+          status: "accepted",
+          driverInfo: tripData.driverInfo,
+          requestId: tripData.requestId,
+          userId: tripData.userId,
+          vehicle: tripData.vehicle,
+          pickup: tripData.pickup,
+          drop: tripData.drop,
+          selectedTime: tripData.selectedTime,
+          price: tripData.price,
+        });
+        localStorage.setItem("activeTrip", JSON.stringify(tripData));
+      }
+    } catch (error) {
+      console.error("Error checking active trips:", error);
+      // Recovery from localStorage
+      const storedTrip = localStorage.getItem("activeTrip");
+      if (storedTrip) {
+        const tripData = JSON.parse(storedTrip);
+        setActiveTrip(tripData);
+        setIsAccepted(true);
+        setDriverData({
+          type: "driver_response",
+          status: "accepted",
+          driverInfo: tripData.driverInfo,
+          requestId: tripData.requestId,
+          userId: tripData.userId,
+          vehicle: tripData.vehicle,
+          pickup: tripData.pickup,
+          drop: tripData.drop,
+          selectedTime: tripData.selectedTime,
+          price: tripData.price,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     setUserData(user);
     setIsVisible(true);
-  }, []);
-
-  // Add useEffect to handle scroll locking
-  useEffect(() => {
-    const originalStyle = window.getComputedStyle(document.body).overflow;
-    document.body.classList.add("overflow-hidden");
-
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-      if (!document.querySelector(".modal-open")) {
-        document.body.style.overflow = originalStyle;
-      }
-    };
-  }, []);
+    checkActiveTrip();
+  }, [user]);
 
   useEffect(() => {
-    console.log("Connecting to WebSocket...");
+    if (!userData) return;
+
     const websocket = new WebSocket("ws://localhost:5000");
 
     websocket.onopen = () => {
       console.log("WebSocket Connected");
       setWsConnected(true);
-
       websocket.send(
         JSON.stringify({
           type: "register",
@@ -80,10 +123,14 @@ const UberVehicleSelection = ({
         console.log("Received message:", data);
 
         if (data.type === "driver_response" && data.status === "accepted") {
-          console.log("Driver accepted:", data);
           setWaitingForDriver(false);
-          setAccepted(true);
+          setIsAccepted(true);
           setDriverData(data);
+          setActiveTrip({
+            ...data,
+            status: "active",
+            createdAt: new Date(),
+          });
         }
       } catch (error) {
         console.error("Error processing message:", error);
@@ -102,6 +149,26 @@ const UberVehicleSelection = ({
       }
     };
   }, [userData]);
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  if (isAccepted && driverData) {
+    return (
+      <DriverAcceptedView
+        pickup={activeTrip?.pickup || pickup}
+        drop={activeTrip?.drop || drop}
+        selectedTime={activeTrip?.selectedTime || selectedTime}
+        driverData={driverData}
+        selectedVehicle={activeTrip?.vehicle || selectedVehicle}
+      />
+    );
+  }
 
   const categories = [
     { id: "recommended", label: "Recommended" },
@@ -348,11 +415,11 @@ const UberVehicleSelection = ({
     <>
       {isAccepted ? (
         <DriverAcceptedView
-          pickup={pickup}
-          drop={drop}
-          selectedTime={selectedTime}
+          pickup={activeTrip?.pickup || pickup}
+          drop={activeTrip?.drop || drop}
+          selectedTime={activeTrip?.selectedTime || selectedTime}
           driverData={driverData}
-          selectedVehicle={selectedVehicle}
+          selectedVehicle={activeTrip?.vehicle || selectedVehicle}
         />
       ) : (
         <>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Car,
   User,
@@ -20,11 +21,12 @@ const DriverAcceptedView = ({
   const [timeToPickup, setTimeToPickup] = useState(() => {
     return parseInt(selectedVehicle?.arrivalTime || 5);
   });
+  const [showCancelPopup, setShowCancelPopup] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeToPickup((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-    }, 60000); // Update every minute
+    }, 60000);
 
     return () => clearInterval(timer);
   }, [timeToPickup]);
@@ -42,6 +44,31 @@ const DriverAcceptedView = ({
 
   const handleTrackDriver = () => {
     console.log("Tracking driver location");
+  };
+
+  const confirmCancel = async (userId) => {
+    if (!userId) {
+      alert("User ID is required to delete a trip.");
+      return;
+    }
+
+    try {
+      const response = await axios.delete("/api/active-trips", {
+        params: { userId },
+      });
+
+      if (response.data.success) {
+        alert(response.data.message || "Trip deleted successfully.");
+      } else {
+        alert(response.data.message || "Failed to delete the trip.");
+      }
+    } catch (error) {
+      console.error("Error deleting trip:", error);
+      alert("An error occurred while deleting the trip.");
+    }
+
+    setShowCancelPopup(false);
+    window.location.reload();
   };
 
   return (
@@ -68,7 +95,9 @@ const DriverAcceptedView = ({
           </div>
           <div className="flex items-center space-x-2">
             <Star size={20} className="text-yellow-300" />
-            <span className="font-semibold">{driverData?.driverInfo.rating || "4.5"}</span>
+            <span className="font-semibold">
+              {driverData?.driverInfo.rating || "4.5"}
+            </span>
           </div>
         </div>
       </div>
@@ -143,12 +172,40 @@ const DriverAcceptedView = ({
       {/* Cancel Ride Button */}
       <div className="p-4 border-t">
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => setShowCancelPopup(true)}
           className="w-full bg-red-50 text-red-600 py-3 rounded-lg hover:bg-red-100 transition"
         >
           Cancel Ride
         </button>
       </div>
+
+      {/* Cancel Confirmation Popup */}
+      {showCancelPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 space-y-4 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-800">
+              Confirm Cancellation
+            </h3>
+            <p className="text-gray-600">
+              Are you sure you want to cancel the ride?
+            </p>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => confirmCancel(driverData?.userId)}
+                className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition"
+              >
+                Yes, Cancel
+              </button>
+              <button
+                onClick={() => setShowCancelPopup(false)}
+                className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+              >
+                No, Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

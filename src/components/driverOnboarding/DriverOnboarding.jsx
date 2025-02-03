@@ -32,7 +32,8 @@ const DriverOnboarding = () => {
       firstName: "",
       lastName: "",
       email: "",
-      phone: ""
+      phone: "",
+      password: "", // Add password field
     },
     driverInfo: {
       licenseNumber: "",
@@ -245,6 +246,19 @@ const DriverOnboarding = () => {
                 type="tel"
                 name="phone"
                 value={formData.personalInfo.phone}
+                onChange={(e) => handleInputChange("personalInfo", e)}
+                className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.personalInfo.password}
                 onChange={(e) => handleInputChange("personalInfo", e)}
                 className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors"
                 required

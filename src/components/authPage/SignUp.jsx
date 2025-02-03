@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../authUtils"; // Import the useAuth hook
+import { useAuth } from "../../authUtils";
+import axios from "axios";
 import {
   Smartphone,
   Shield,
@@ -16,12 +16,12 @@ import {
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [dob, setDob] = useState("");
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // Use authentication context
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -39,14 +39,14 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/user/send-otp", {
+      const response = await axios.post("/api/user/check", {
         phone: cleanedPhone,
       });
 
-      if (response.data.success) {
-        setStep(2);
+      if (response.data.exists) {
+        setStep(2); // User exists, ask for password
       } else {
-        setError(response.data.message || "Failed to send OTP");
+        setStep(3); // User does not exist, ask to create password
       }
     } catch (error) {
       setError(
@@ -57,33 +57,26 @@ const SignUp = () => {
     }
   };
 
-  const handleOtpSubmit = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-
-    // OTP validation
-    const cleanedOtp = otp.replace(/\D/g, "");
-    if (cleanedOtp.length !== 6) {
-      setError("Please enter a 6-digit OTP");
-      return;
-    }
 
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await axios.post("/api/user/verify-otp", {
+      const response = await axios.post("/api/user/login", {
         phone: phone.replace(/\D/g, ""),
-        otp: cleanedOtp,
+        password,
       });
 
       if (response.data.success) {
         // Use login method from AuthContext
-        login(response.data.token);
+        login(response.data.token, response.data.user);
 
         // Navigate to profile or dashboard
         navigate("/");
       } else {
-        setError(response.data.message || "OTP verification failed");
+        setError(response.data.message || "Failed to log in");
       }
     } catch (error) {
       setError(
@@ -94,24 +87,31 @@ const SignUp = () => {
     }
   };
 
-  const handleResendOtp = async () => {
+  const handleSignUpSubmit = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await axios.post("/api/user/send-otp", {
-        phone: phone.replace(/\D/g, ""),
+      const response = await fetch("http://localhost:5000/api/user/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone, password, fullName, dob }),
       });
 
-      if (response.data.success) {
-        alert("OTP Resent Successfully!");
+      const data = await response.json();
+
+      if (data.success) {
+        login(data.token, data.user);
+        navigate("/user-dashboard");
       } else {
-        setError(response.data.message || "Failed to resend OTP");
+        setError(data.message);
       }
     } catch (error) {
-      setError(
-        error.response?.data?.message || "Network error. Please try again."
-      );
+      console.error("Error signing up:", error);
+      setError("An error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -147,12 +147,18 @@ const SignUp = () => {
               <Smartphone className="w-10 h-10 text-indigo-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              {step === 1 ? "Get Started" : "Enter OTP"}
+              {step === 1
+                ? "Get Started"
+                : step === 2
+                ? "Log In"
+                : "Create Account"}
             </h1>
             <p className="text-gray-600">
               {step === 1
                 ? "Enter your phone number"
-                : "Verify OTP sent to your number"}
+                : step === 2
+                ? "Enter your password"
+                : "Create your account"}
             </p>
           </div>
 
@@ -164,7 +170,10 @@ const SignUp = () => {
           )}
 
           {step === 1 ? (
-            <form onSubmit={handlePhoneSubmit} className="space-y-4">
+            <form
+              onSubmit={handlePhoneSubmit}
+              className="space-y-4"
+            >
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 group-focus-within:text-indigo-600 transition">
@@ -191,32 +200,45 @@ const SignUp = () => {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 animate-spin" /> Sending...
+                    <Loader2 className="mr-2 animate-spin" /> Checking...
                   </>
                 ) : (
                   <>
-                    Send OTP <ArrowRight className="ml-2 w-5 h-5" />
+                    Next <ArrowRight className="ml-2 w-5 h-5" />
                   </>
                 )}
               </button>
             </form>
-          ) : (
-            <form onSubmit={handleOtpSubmit} className="space-y-4">
-              <div className="flex space-x-2 justify-center">
-                {[...Array(6)].map((_, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    maxLength="1"
-                    value={otp[index] || ""}
-                    onChange={(e) => {
-                      const newOtp = otp.split("");
-                      newOtp[index] = e.target.value.replace(/\D/g, "");
-                      setOtp(newOtp.join(""));
-                    }}
-                    className="w-12 h-14 text-center border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 hover:border-indigo-300 transition"
-                  />
-                ))}
+          ) : step === 2 ? (
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 group-focus-within:text-indigo-600 transition">
+                    +91
+                  </span>
+                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    // Only allow digits
+                    const value = e.target.value.replace(/\D/g, "");
+                    setPhone(value);
+                  }}
+                  placeholder="Enter Your Number"
+                  maxLength="10"
+                  className="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                  disabled
+                />
+              </div>
+              <div className="relative group">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter Your Password"
+                  className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                />
               </div>
               <button
                 type="submit"
@@ -225,11 +247,11 @@ const SignUp = () => {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 animate-spin" /> Verifying...
+                    <Loader2 className="mr-2 animate-spin" /> Logging in...
                   </>
                 ) : (
                   <>
-                    Submit <Shield className="ml-2 w-5 h-5" />
+                    Log In <Shield className="ml-2 w-5 h-5" />
                   </>
                 )}
               </button>
@@ -243,15 +265,79 @@ const SignUp = () => {
                   Change Number
                 </button>
               </p>
+            </form>
+          ) : (
+            <form onSubmit={handleSignUpSubmit} className="space-y-4">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 group-focus-within:text-indigo-600 transition">
+                    +91
+                  </span>
+                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    // Only allow digits
+                    const value = e.target.value.replace(/\D/g, "");
+                    setPhone(value);
+                  }}
+                  placeholder="Enter Your Number"
+                  maxLength="10"
+                  className="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                  disabled
+                />
+              </div>
+              <div className="relative group">
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter Your Full Name"
+                  className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                />
+              </div>
+              <div className="relative group">
+                <input
+                  type="date"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  placeholder="Enter Your Date of Birth"
+                  className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                />
+              </div>
+              <div className="relative group">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create a Password"
+                  className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-indigo-300 transition"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" /> Signing up...
+                  </>
+                ) : (
+                  <>
+                    Sign Up <Shield className="ml-2 w-5 h-5" />
+                  </>
+                )}
+              </button>
               <p className="text-center text-sm text-gray-500">
-                Didn't Receive OTP?
+                Not Your Number?
                 <button
                   type="button"
-                  onClick={handleResendOtp}
-                  disabled={isLoading}
+                  onClick={() => setStep(1)}
                   className="text-indigo-600 ml-1 font-medium hover:underline"
                 >
-                  Resend OTP
+                  Change Number
                 </button>
               </p>
             </form>

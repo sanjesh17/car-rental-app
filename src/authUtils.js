@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext({
@@ -25,99 +25,65 @@ export const AuthProvider = ({ children }) => {
 
   const checkAndSetToken = async () => {
     const storedToken = localStorage.getItem("token");
-    const storedAuthType = localStorage.getItem("authType");
-
+    const storedUserType = localStorage.getItem("userType");
     if (storedToken) {
       try {
-        await validateToken(storedToken);
-        const decodedData = decodeToken(storedToken);
-        
-        if (storedAuthType === "driver") {
-          setDriver(decodedData);
+        const decodedUser = decodeToken(storedToken);
+        if (storedUserType === "driver") {
+          setDriver(decodedUser);
           setIsDriverAuthenticated(true);
         } else {
-          setUser(decodedData);
+          setUser(decodedUser);
           setIsAuthenticated(true);
         }
-        
         setToken(storedToken);
       } catch (error) {
-        if (storedAuthType === "driver") {
-          driverLogout();
-        } else {
-          logout();
-        }
+        console.error("Invalid token:", error);
+        logout();
       }
     }
     setLoading(false);
   };
 
   // User login function
-  const login = (newToken) => {
+  const login = (newToken, user) => {
     localStorage.setItem("token", newToken);
-    localStorage.setItem("authType", "user");
-    window.dispatchEvent(new Event("storage"));
-
-    const decodedUser = decodeToken(newToken);
-    setUser(decodedUser);
-    setDriver(null);
+    localStorage.setItem("userType", "user");
+    setUser(user);
     setToken(newToken);
     setIsAuthenticated(true);
-    setIsDriverAuthenticated(false);
     setLoading(false);
   };
 
   // Driver login function
-  const driverLogin = (newToken) => {
+  const driverLogin = (newToken, driver) => {
     localStorage.setItem("token", newToken);
-    localStorage.setItem("authType", "driver");
-    window.dispatchEvent(new Event("storage"));
-
-    const decodedDriver = decodeToken(newToken);
-    setDriver(decodedDriver);
-    console.log(decodedDriver);
-    setUser(null);
+    localStorage.setItem("userType", "driver");
+    setDriver(driver);
     setToken(newToken);
     setIsDriverAuthenticated(true);
-    setIsAuthenticated(false);
     setLoading(false);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("authType");
-    window.dispatchEvent(new Event("storage"));
-
+    localStorage.removeItem("userType");
     setUser(null);
     setDriver(null);
     setToken(null);
     setIsAuthenticated(false);
     setIsDriverAuthenticated(false);
-    setLoading(false);
   };
 
   const driverLogout = () => {
-    logout();
+    localStorage.removeItem("token");
+    setDriver(null);
+    setToken(null);
+    setIsDriverAuthenticated(false);
   };
 
   useEffect(() => {
     checkAndSetToken();
-
-    const handleStorageChange = (event) => {
-      if (event.key === "token") {
-        if (event.newValue) {
-          checkAndSetToken();
-        } else {
-          logout();
-        }
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
   }, []);
 
   return (
@@ -154,6 +120,7 @@ function decodeToken(token) {
       id: payload.id,
       name: payload.name,
       phoneNumber: payload.phone,
+      role: payload.role,
     };
   } catch (error) {
     throw new Error("Invalid token");
@@ -162,19 +129,10 @@ function decodeToken(token) {
 
 async function validateToken(token) {
   try {
-    const authType = localStorage.getItem("authType");
-    const endpoint = authType === "driver" ? "/api/validate-token" : "/api/validate-token";
-    
-    await axios.post(
-      endpoint,
-      { token },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const response = await axios.post("/api/validate-token", { token });
+    return response.data.valid;
   } catch (error) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("authType");
+    return false;
   }
 }
 
@@ -202,12 +160,7 @@ export const setupAxiosInterceptors = (logout) => {
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        const authType = localStorage.getItem("authType");
-        if (authType === "driver") {
-          logout("driver");
-        } else {
-          logout("user");
-        }
+        logout();
       }
       return Promise.reject(error);
     }
@@ -220,10 +173,10 @@ export const ProtectedRoute = ({ children, type = "user" }) => {
 
   useEffect(() => {
     if (!loading) {
-      if (type === "driver" && !isDriverAuthenticated) {
-        navigate("/auth/driver/signup");
-      } else if (type === "user" && !isAuthenticated) {
+      if (type === "user" && !isAuthenticated) {
         navigate("/auth/signup");
+      } else if (type === "driver" && !isDriverAuthenticated) {
+        navigate("/auth/driver/signup");
       }
     }
   }, [isAuthenticated, isDriverAuthenticated, loading, navigate, type]);
@@ -232,11 +185,7 @@ export const ProtectedRoute = ({ children, type = "user" }) => {
     return <div>Loading...</div>;
   }
 
-  if (type === "driver") {
-    return isDriverAuthenticated ? children : null;
-  }
-
-  return isAuthenticated ? children : null;
+  return children;
 };
 
 export default AuthContext;

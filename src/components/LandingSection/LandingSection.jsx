@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Navigation from "../Navigation/Navigation";
 import axios from "axios";
 import withFadeInAnimation from "../../hooks/withFadeInAnimation";
 import "../../hooks/fadeinanimation.css";
 import UberVehicleSelection from "../uberVehicleSelection/UberVehicleSelection";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "../../authUtils";
 import debounce from "lodash/debounce";
 import {
   MapPin,
@@ -27,7 +29,45 @@ const LandingSection = () => {
   const [dropSuggestions, setDropSuggestions] = useState([]);
   const [showVehicleSelection, setShowVehicleSelection] = useState(false);
   const [driverMode, setDriverMode] = useState("withDriver");
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasActiveTrip, setHasActiveTrip] = useState(false);
+  const [activeTripData, setActiveTripData] = useState(null);
+
+  const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkActiveTrip = async () => {
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/api/active-trips?userId=${user.id}`);
+
+        if (response.data.success && response.data.data) {
+          setHasActiveTrip(true);
+          setActiveTripData(response.data.data);
+          setShowVehicleSelection(true);
+        }
+      } catch (error) {
+        console.error("Error checking active trips:", error);
+        // Check localStorage as fallback
+        const storedTrip = localStorage.getItem("activeTrip");
+        if (storedTrip) {
+          const parsedTrip = JSON.parse(storedTrip);
+          setHasActiveTrip(true);
+          setActiveTripData(parsedTrip);
+          setShowVehicleSelection(true);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkActiveTrip();
+  }, [user]);
 
   const debouncedLocationSearch = useCallback(
     debounce(async (query, setter) => {
@@ -324,7 +364,6 @@ const LandingSection = () => {
             },
           });
         } else {
-          // If self-drive, go directly to car selection
           navigate("/car-selection", {
             state: {
               pickup,
@@ -418,99 +457,119 @@ const LandingSection = () => {
     </div>
   );
 
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen relative">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${carBg})` }}
-      />
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="lg:text-4xl text-3xl font-bold text-[#0f1e35] mb-2 font-custom">
-              Book Your Ride Now
-            </h1>
-            <p className="text-gray-600">
-              Choose your trip type and get started
-            </p>
-          </div>
-
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-10">
-            {/* Updated Trip Type Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <TripTypeButton
-                type="quickTrip"
-                icon={<Car className="h-5 w-5" />}
-                label="Quick Trip"
-              />
-              <TripTypeButton
-                type="Single Trip"
-                icon={<MapPin className="h-5 w-5" />}
-                label="Single Trip"
-              />
-              <TripTypeButton
-                type="roundTrip"
-                icon={<RotateCw className="h-5 w-5" />}
-                label="Round Trip"
-              />
-              <TripTypeButton
-                type="Goods"
-                icon={<Package className="h-5 w-5" />}
-                label="Goods"
-              />
-            </div>
-
-            {/* Update padding in booking section */}
-            <div className="space-y-6 px-1">
-              {renderBookingInputs()}
-
-              <div className="flex justify-center pt-6">
-                <button
-                  onClick={handleSearch}
-                  className="w-full bg-[#6850A4] text-white px-6 py-4 rounded-xl font-medium 
-                           hover:bg-[#B858A2] active:bg-blue-800 transition-all duration-200 
-                           flex items-center justify-center gap-3 shadow-lg shadow-blue-600/30"
-                >
-                  <Car className="h-5 w-5" />
-                  Find Available Rides
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Access Features */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            {[
-              { icon: <Clock className="h-5 w-5" />, label: "Recent Trips" },
-              { icon: <MapPin className="h-5 w-5" />, label: "Saved Places" },
-              { icon: <Package className="h-5 w-5" />, label: "Offers" },
-            ].map((feature, index) => (
-              <button
-                key={index}
-                className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm
-                         hover:bg-gray-50 transition-colors duration-200"
-              >
-                <div className="p-2 bg-blue-50 rounded-lg">{feature.icon}</div>
-                <span className="text-sm font-medium text-gray-700">
-                  {feature.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {showVehicleSelection && (
+      {showVehicleSelection ? (
         <UberVehicleSelection
-          pickup={pickup}
-          drop={drop}
-          selectedTime={selectedTimeOption}
+          pickup={hasActiveTrip ? activeTripData?.pickup : pickup}
+          drop={hasActiveTrip ? activeTripData?.drop : drop}
+          selectedTime={
+            hasActiveTrip ? activeTripData?.selectedTime : selectedTimeOption
+          }
           onVehicleSelect={(vehicle) => {
             console.log("Selected vehicle:", vehicle);
           }}
-          onBack={() => setShowVehicleSelection(false)}
+          onBack={() => !hasActiveTrip && setShowVehicleSelection(false)}
         />
+      ) : (
+        <>
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${carBg})` }}
+          />
+          <div className="container mx-auto px-4 py-12 relative z-10">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-8">
+                <h1 className="lg:text-4xl text-3xl font-bold text-[#0f1e35] mb-2 font-custom">
+                  Book Your Ride Now
+                </h1>
+                <p className="text-gray-600">
+                  Choose your trip type and get started
+                </p>
+              </div>
+
+              <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-10">
+                {/* Updated Trip Type Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <TripTypeButton
+                    type="quickTrip"
+                    icon={<Car className="h-5 w-5" />}
+                    label="Quick Trip"
+                  />
+                  <TripTypeButton
+                    type="Single Trip"
+                    icon={<MapPin className="h-5 w-5" />}
+                    label="Single Trip"
+                  />
+                  <TripTypeButton
+                    type="roundTrip"
+                    icon={<RotateCw className="h-5 w-5" />}
+                    label="Round Trip"
+                  />
+                  <TripTypeButton
+                    type="Goods"
+                    icon={<Package className="h-5 w-5" />}
+                    label="Goods"
+                  />
+                </div>
+
+                {/* Update padding in booking section */}
+                <div className="space-y-6 px-1">
+                  {renderBookingInputs()}
+
+                  <div className="flex justify-center pt-6">
+                    <button
+                      onClick={handleSearch}
+                      className="w-full bg-[#6850A4] text-white px-6 py-4 rounded-xl font-medium 
+                           hover:bg-[#B858A2] active:bg-blue-800 transition-all duration-200 
+                           flex items-center justify-center gap-3 shadow-lg shadow-blue-600/30"
+                    >
+                      <Car className="h-5 w-5" />
+                      Find Available Rides
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Access Features */}
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {[
+                  {
+                    icon: <Clock className="h-5 w-5" />,
+                    label: "Recent Trips",
+                  },
+                  {
+                    icon: <MapPin className="h-5 w-5" />,
+                    label: "Saved Places",
+                  },
+                  { icon: <Package className="h-5 w-5" />, label: "Offers" },
+                ].map((feature, index) => (
+                  <button
+                    key={index}
+                    className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm
+                         hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      {feature.icon}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {feature.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

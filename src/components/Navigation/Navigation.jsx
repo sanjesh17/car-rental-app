@@ -1,17 +1,12 @@
 import React from "react";
-import {
-  Home,
-  Car,
-  Shield,
-  User,
-  HelpCircle,
-} from "lucide-react";
+import { Home, Car, Shield, User, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../authUtils";
 
 const Navigation = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout, isDriverAuthenticated, driver } = useAuth();
+  const { isAuthenticated, user, logout, isDriverAuthenticated, driver } =
+    useAuth();
 
   const getCurrentUserName = () => {
     if (isDriverAuthenticated && driver) {
@@ -22,6 +17,8 @@ const Navigation = () => {
     }
     return "User";
   };
+
+  console.log(user);
 
   const desktopNavLinks = [
     { label: "Home", href: "/" },

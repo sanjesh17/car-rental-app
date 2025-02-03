@@ -8,8 +8,8 @@ import {
   Calendar,
   TrendingUp,
 } from "lucide-react";
-import { useAuth } from "../../authUtils";
 import axios from "axios";
+import UserAcceptedView from "../userAcceptedView/UserAcceptedView";
 
 const DriverDashboard = () => {
   const [ws, setWs] = useState(null);
@@ -18,6 +18,7 @@ const DriverDashboard = () => {
   const [driverData, setDriverData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [btnloading, setBtnLoading] = useState(false);
+  const [selectedActiveTrip, setSelectedActiveTrip] = useState(null);
 
   const analytics = {
     totalEarnings: 12500,
@@ -70,17 +71,45 @@ const DriverDashboard = () => {
       setBtnLoading(false);
     }
   };
-
   useEffect(() => {
     const fetchDriverData = async () => {
       try {
         const dData = decodeToken(localStorage.getItem("token"));
-        const response = await fetch(`/api/drivers/${dData.id}`);
-        if (!response.ok) throw new Error("Failed to fetch driver data");
-        const data = await response.json();
+        const [driverResponse, activeTripsResponse] = await Promise.all([
+          fetch(`/api/drivers/${dData.id}`),
+          fetch(`/api/active-trips?driverId=${dData.id}`),
+        ]);
+
+        if (!driverResponse.ok) throw new Error("Failed to fetch driver data");
+        const data = await driverResponse.json();
         setDriverData(data);
+
+        // If there's an active trip, add it to upcoming trips
+        if (activeTripsResponse.ok) {
+          const tripData = await activeTripsResponse.json();
+          if (tripData.success && tripData.data) {
+            const activeTrip = {
+              id: tripData.data.requestId,
+              pickup: tripData.data.pickup,
+              dropoff: tripData.data.drop,
+              time: tripData.data.selectedTime,
+              status: "active",
+              customer: {
+                id: tripData.data.userId,
+                price: tripData.data.price,
+              },
+            };
+            setUpcomingTrips((prev) => {
+              const tripExists = prev.some((trip) => trip.id === activeTrip.id);
+              if (!tripExists) {
+                return [activeTrip, ...prev];
+              }
+              return prev;
+            });
+          }
+        }
       } catch (err) {
-        console.error("Error fetching driver data:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
@@ -139,8 +168,13 @@ const DriverDashboard = () => {
         status: "accepted",
         userId: request.userId,
         requestId: request.requestId,
+        pickup: request.pickup,
+        drop: request.drop,
+        selectedTime: request.selectedTime,
+        vehicle: request.vehicle,
+        price: request.estimatedPrice,
         driverInfo: {
-          id: driverData.data_id,
+          id: driverData.data._id,
           name: driverData.data.personalInfo.firstName,
           vehicle: driverData.data.vehicleInfo.vehicleModel,
           rating: 4.8,
@@ -189,172 +223,199 @@ const DriverDashboard = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen p-4 space-y-6">
-      <header className="flex justify-between items-center mb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-sm text-gray-500">
-            {loading
-              ? "Loading..."
-              : `Welcome, ${
-                  driverData?.data?.personalInfo?.firstName || "Driver"
-                }`}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div
-            className="py-2 px-5 rounded-xl  font-semibold bg-red-500 text-white cursor-pointer hover:bg-red-400 transition-all duration-200"
-            onClick={changeStatus}
-          >
-            {!btnloading ? driverData?.data?.status : "Loading"}
+    <>
+      {selectedActiveTrip && (
+        <UserAcceptedView
+          pickup={selectedActiveTrip.pickup}
+          drop={selectedActiveTrip.dropoff}
+          selectedTime={selectedActiveTrip.time}
+          customerData={{
+            name:
+              driverData?.userId || "Unknown Customer",
+            phone: driverData?.data?.personalInfo?.phone,
+            rating: 4.5,
+          }}
+          selectedVehicle={{
+            type: selectedActiveTrip.vehicle?.type || "Vehicle",
+            price: selectedActiveTrip.customer.price,
+            arrivalTime: 5,
+          }}
+          userId={driverData?.userId}
+        />
+      )}
+      <div className="bg-gray-50 min-h-screen p-4 space-y-6">
+        <header className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+            <p className="text-sm text-gray-500">
+              {loading
+                ? "Loading..."
+                : `Welcome, ${
+                    driverData?.data?.personalInfo?.firstName || "Driver"
+                  }`}
+            </p>
           </div>
-        </div>
-      </header>
-
-      <div className="grid grid-cols-2 gap-4">
-        <StatCard
-          icon={<Wallet className="text-green-500" size={24} />}
-          title="Today's Earnings"
-          value={`₹${analytics.todayEarnings}`}
-          subtitle={`${upcomingTrips.length} trips`}
-          color="bg-green-100"
-        />
-        <StatCard
-          icon={<TrendingUp className="text-purple-500" size={24} />}
-          title="Monthly Earnings"
-          value={`₹${analytics.monthlyEarnings}`}
-          subtitle="This month"
-          color="bg-purple-100"
-        />
-      </div>
-
-      {/* Performance Metrics */}
-      <div className="space-y-4">
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center space-x-3">
-              <Star className="text-yellow-500" size={24} />
-              <span className="font-semibold text-gray-700">Rating</span>
+          <div className="flex items-center space-x-2">
+            <div
+              className="py-2 px-5 rounded-xl  font-semibold bg-red-500 text-white cursor-pointer hover:bg-red-400 transition-all duration-200"
+              onClick={changeStatus}
+            >
+              {!btnloading ? driverData?.data?.status : "Loading"}
             </div>
-            <span className="text-lg font-bold">{analytics.rating}/5.0</span>
           </div>
-          <ProgressBar
-            value={(analytics.rating / 5) * 100}
-            color="bg-yellow-500"
+        </header>
+
+        <div className="grid grid-cols-2 gap-4">
+          <StatCard
+            icon={<Wallet className="text-green-500" size={24} />}
+            title="Today's Earnings"
+            value={`₹${analytics.todayEarnings}`}
+            subtitle={`${upcomingTrips.length} trips`}
+            color="bg-green-100"
+          />
+          <StatCard
+            icon={<TrendingUp className="text-purple-500" size={24} />}
+            title="Monthly Earnings"
+            value={`₹${analytics.monthlyEarnings}`}
+            subtitle="This month"
+            color="bg-purple-100"
           />
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center space-x-3">
-              <Route className="text-green-500" size={24} />
-              <span className="font-semibold text-gray-700">
-                Completion Rate
-              </span>
-            </div>
-            <span className="text-lg font-bold">
-              {analytics.completionRate}%
-            </span>
-          </div>
-          <ProgressBar value={analytics.completionRate} color="bg-green-500" />
-        </div>
-      </div>
-
-      {/* Ride Requests */}
-      <section>
-        <h2 className="text-xl font-bold mb-4 text-gray-800">
-          New Ride Requests
-        </h2>
-        {bookingRequests.length === 0 ? (
-          <div className="bg-white rounded-xl p-4 text-center text-gray-500">
-            No new ride requests
-          </div>
-        ) : (
-          bookingRequests.map((request) => (
-            <div
-              key={request.requestId}
-              className="bg-white rounded-xl shadow-md p-4 mb-4"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-semibold text-gray-800">
-                    {request.vehicle.type}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Price: ₹{request.estimatedPrice}
-                  </p>
-                </div>
-                <MapPin className="text-gray-400" size={20} />
+        {/* Performance Metrics */}
+        <div className="space-y-4">
+          <div className="bg-white rounded-xl shadow-md p-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center space-x-3">
+                <Star className="text-yellow-500" size={24} />
+                <span className="font-semibold text-gray-700">Rating</span>
               </div>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p className="text-sm text-gray-600">{request.pickup}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <p className="text-sm text-gray-600">{request.drop}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleAcceptBooking(request)}
-                className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
-              >
-                Accept Request
-              </button>
+              <span className="text-lg font-bold">{analytics.rating}/5.0</span>
             </div>
-          ))
-        )}
-      </section>
-
-      {/* Upcoming Trips */}
-      <section>
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Upcoming Trips</h2>
-        {upcomingTrips.length === 0 ? (
-          <div className="bg-white rounded-xl p-4 text-center text-gray-500">
-            No upcoming trips
+            <ProgressBar
+              value={(analytics.rating / 5) * 100}
+              color="bg-yellow-500"
+            />
           </div>
-        ) : (
-          upcomingTrips.map((trip) => (
-            <div
-              key={trip.id}
-              className="bg-white rounded-xl shadow-md p-4 mb-4"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-semibold text-gray-800">
-                    Trip #{trip.id.slice(-4)}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Price: ₹{trip.customer.price}
-                  </p>
-                </div>
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                  {trip.status}
+
+          <div className="bg-white rounded-xl shadow-md p-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center space-x-3">
+                <Route className="text-green-500" size={24} />
+                <span className="font-semibold text-gray-700">
+                  Completion Rate
                 </span>
               </div>
+              <span className="text-lg font-bold">
+                {analytics.completionRate}%
+              </span>
+            </div>
+            <ProgressBar
+              value={analytics.completionRate}
+              color="bg-green-500"
+            />
+          </div>
+        </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p className="text-sm text-gray-600">{trip.pickup}</p>
+        {/* Ride Requests */}
+        <section>
+          <h2 className="text-xl font-bold mb-4 text-gray-800">
+            New Ride Requests
+          </h2>
+          {bookingRequests.length === 0 ? (
+            <div className="bg-white rounded-xl p-4 text-center text-gray-500">
+              No new ride requests
+            </div>
+          ) : (
+            bookingRequests.map((request) => (
+              <div
+                key={request.requestId}
+                className="bg-white rounded-xl shadow-md p-4 mb-4"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-semibold text-gray-800">
+                      {request.vehicle.type}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Price: ₹{request.estimatedPrice}
+                    </p>
+                  </div>
+                  <MapPin className="text-gray-400" size={20} />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <p className="text-sm text-gray-600">{trip.dropoff}</p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-gray-600">{request.pickup}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <p className="text-sm text-gray-600">{request.drop}</p>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600 flex items-center space-x-2">
-                  <Clock size={16} className="text-gray-400" />
-                  <span>{trip.time}</span>
+
+                <button
+                  onClick={() => handleAcceptBooking(request)}
+                  className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Accept Request
+                </button>
+              </div>
+            ))
+          )}
+        </section>
+
+        {/* Upcoming Trips */}
+        <section>
+          <h2 className="text-xl font-bold mb-4 text-gray-800">
+            Upcoming Trips
+          </h2>
+          {upcomingTrips.length === 0 ? (
+            <div className="bg-white rounded-xl p-4 text-center text-gray-500">
+              No upcoming trips
+            </div>
+          ) : (
+            upcomingTrips.map((trip) => (
+              <div
+                key={trip.id}
+                className="bg-white rounded-xl shadow-md p-4 mb-4"
+                onClick={() => setSelectedActiveTrip(trip)}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-semibold text-gray-800">
+                      Trip #{trip.id.slice(-4)}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Price: ₹{trip.customer.price}
+                    </p>
+                  </div>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                    {trip.status}
+                  </span>
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-gray-600">{trip.pickup}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <p className="text-sm text-gray-600">{trip.dropoff}</p>
+                  </div>
+                  <div className="text-sm text-gray-600 flex items-center space-x-2">
+                    <Clock size={16} className="text-gray-400" />
+                    <span>{trip.time}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </section>
-    </div>
+            ))
+          )}
+        </section>
+      </div>
+    </>
   );
 };
 
